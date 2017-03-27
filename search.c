@@ -8,48 +8,80 @@
 #include <unistd.h>
 #include <errno.h>
 
-void listDir(const char *name);
+void listFilesFromDir(char *name);
+//void listFilesFromsDir(char *name);
 
 int main(int argc, char *argv[]) {
 
-	listDir(argv[1]);
+	listFilesFromDir(argv[1]);
 	return 0;
 }
 
-void listDir(const char* dir_name) {
 
-	DIR *dir, *sub_dir;
+void listFilesFromDir(char* workingDir) {
+
+	DIR *dir, *sDir;
 	struct dirent *entry;
-	const char* d_name;
+	char * d_name;
+	//char * subDirName;
+	char subDirName[] = "";
 
-
-	if(!(dir = opendir(dir_name))){
-		fprintf(stderr, "Cannot open directory '%s': %s\n", dir_name, strerror(errno));
+	if(!(dir = opendir(workingDir))) {
+		fprintf(stderr, "Cannot open directory '%s': %s\n", workingDir, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
-
+	
 	while (1) {
 
-		if (!(entry = readdir(dir)))
-			//printf("PARTIREI");
+		if(!(entry = readdir(dir)))
 			break;
 
 		d_name = entry->d_name;
 
-
 		if (!strcmp(d_name, ".") || !strcmp(d_name, ".."))
 			continue;
 		else {
-
-	 		printf("%s/%s\n", dir_name, d_name);
-			if ((sub_dir = opendir(d_name))){
-				strcpy(sub_dir, dir_name);
-				strcat(sub_dir, "/");
-				strcat(sub_dir, d_name);
-				listDir(sub_dir);
-				printf("SUBDIR\n");
+			printf("%s/%s\n", workingDir, d_name);
+			if ((sDir = opendir(d_name))){
+				strcpy(subDirName,workingDir);
+				strcat(subDirName,"/");
+				strcat(subDirName,d_name);
+				//printf("ZZZZZ\n%s\n\n",subDirName);
+				listFilesFromDir(subDirName);
 			}
 		}
-
 	}
 }
+
+// void listFilesFromSubDir(char* workingDir) {
+
+// 	DIR *dir, *sDir;
+// 	struct dirent *entry;
+// 	char * d_name;
+// 	char * subDirName;
+
+// 	if(!(dir = opendir(workingDir))) {
+// 		fprintf(stderr, "Cannot open directory '%s': %s\n", workingDir, strerror(errno));
+// 		exit(EXIT_FAILURE);
+// 	}
+	
+// 	while (1) {
+
+// 		if(!(entry = readdir(dir)))
+// 			break;
+
+// 		d_name = entry->d_name;
+
+// 		if (!strcmp(d_name, ".") || !strcmp(d_name, ".."))
+// 			continue;
+// 		else {
+// 			printf("%s/%s\n", workingDir, d_name);
+// 			if ((sDir = opendir(d_name))){
+// 				strcpy(subDirName,workingDir);
+// 				strcat(subDirName,"/");
+// 				strcat(subDirName,d_name);
+// 				listFilesFromSubDir(subDirName);
+// 			}
+// 		}
+// 	}
+// }
