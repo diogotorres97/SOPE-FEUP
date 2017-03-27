@@ -48,14 +48,16 @@ void listFilesFromDir(char* workingDir) {
 				strcat(subDirName,d_name);
 				//printf("ZZZZZ\n%s\n\n",subDirName);
 				listFilesFromSubDir(subDirName);
+				closedir(sDir);
 			}
 		}
 	}
+	closedir(dir);
 }
 
 void listFilesFromSubDir(char* workingDir) {
 
-	printf("\n\n\n\n\nWORKINGDIR: %s", workingDir);
+	printf("\n\nWORKINGDIR: %s", workingDir);
 	DIR *dir, *sDir;
 	struct dirent *entry;
 	char * d_name;
@@ -81,8 +83,10 @@ void listFilesFromSubDir(char* workingDir) {
 				strcpy(subDirName,workingDir);
 				strcat(subDirName,"/");
 				strcat(subDirName,d_name);
-				listFilesFromSubDir(subDirName);
+				listFilesFromSubDir(subDirName);	
+				closedir(sDir);
 			}
 		}
 	}
+	closedir(dir);
 }
