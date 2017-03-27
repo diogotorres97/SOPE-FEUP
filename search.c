@@ -9,7 +9,7 @@
 #include <errno.h>
 
 void listFilesFromDir(char *name);
-//void listFilesFromsDir(char *name);
+void listFilesFromSubDir(char *name);
 
 int main(int argc, char *argv[]) {
 
@@ -47,41 +47,42 @@ void listFilesFromDir(char* workingDir) {
 				strcat(subDirName,"/");
 				strcat(subDirName,d_name);
 				//printf("ZZZZZ\n%s\n\n",subDirName);
-				listFilesFromDir(subDirName);
+				listFilesFromSubDir(subDirName);
 			}
 		}
 	}
 }
 
-// void listFilesFromSubDir(char* workingDir) {
+void listFilesFromSubDir(char* workingDir) {
 
-// 	DIR *dir, *sDir;
-// 	struct dirent *entry;
-// 	char * d_name;
-// 	char * subDirName;
+	printf("\n\n\n\n\nWORKINGDIR: %s", workingDir);
+	DIR *dir, *sDir;
+	struct dirent *entry;
+	char * d_name;
+	char subDirName[] = "";
 
-// 	if(!(dir = opendir(workingDir))) {
-// 		fprintf(stderr, "Cannot open directory '%s': %s\n", workingDir, strerror(errno));
-// 		exit(EXIT_FAILURE);
-// 	}
+	if(!(dir = opendir(workingDir))) {
+		fprintf(stderr, "Cannot open directory '%s': %s\n", workingDir, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
 	
-// 	while (1) {
+	while (1) {
 
-// 		if(!(entry = readdir(dir)))
-// 			break;
+		if(!(entry = readdir(dir)))
+			break;
 
-// 		d_name = entry->d_name;
+		d_name = entry->d_name;
 
-// 		if (!strcmp(d_name, ".") || !strcmp(d_name, ".."))
-// 			continue;
-// 		else {
-// 			printf("%s/%s\n", workingDir, d_name);
-// 			if ((sDir = opendir(d_name))){
-// 				strcpy(subDirName,workingDir);
-// 				strcat(subDirName,"/");
-// 				strcat(subDirName,d_name);
-// 				listFilesFromSubDir(subDirName);
-// 			}
-// 		}
-// 	}
-// }
+		if (!strcmp(d_name, ".") || !strcmp(d_name, ".."))
+			continue;
+		else {
+			printf("%s/%s\n", workingDir, d_name);
+			if ((sDir = opendir(d_name))){
+				strcpy(subDirName,workingDir);
+				strcat(subDirName,"/");
+				strcat(subDirName,d_name);
+				listFilesFromSubDir(subDirName);
+			}
+		}
+	}
+}
