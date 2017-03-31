@@ -11,64 +11,28 @@
 void listFilesFromDir(char *name);
 void listFilesFromSubDir(char *name);
 
-int main(int argc, char *argv[]) {
+int verifyPath(char *path) {
 
-	listFilesFromDir(argv[1]);
-	return 0;
-}
+	DIR *dir;
 
+	if(!(dir = opendir(path))) {
+			fprintf(stderr, "Cannot open directory '%s': %s\n", path, strerror(errno));
+			exit(EXIT_FAILURE);
+		}
 
-int checkType(char * d_name, char type){
-	struct stat stat_buf;
-
-	if(lstat(d_name, &stat_buf) == -1){
-		fprintf(stderr, "Could not read status from current directory");
-		exit(-1);
-	}
-
-	switch (type){
-		case 'c': //character (unbuffered) special
-		if (S_ISCHR(stat_buf.st_mode)) return 1;
-		break;
-		case 'd': //directory
-		if (S_ISDIR(stat_buf.st_mode)) return 1;
-		break;
-
-		case 'p': // named pipe (FIFO)
-		if (S_ISFIFO(stat_buf.st_mode)) return 1;
-		break;
-
-		case 'f': // regular file
-		if (S_ISREG(stat_buf.st_mode)) return 1;
-		break;
-
-		case 'l': //symbolic link;
-		if (S_ISLNK(stat_buf.st_mode)) return 1;
-		break;
-
-		case 's': //socket
-		if (S_ISSOCK(stat_buf.st_mode)) return 1;
-		break;
-		case 'D': //door (Solaris)
-		if (S_ISBLK(stat_buf.st_mode)) return 1;
-		break;
-
-		default:
-		break;
-	}
-	return 0;
+		return 0;
 
 }
+
+
 
 
 void listFilesFromDir(char* workingDir) {
-
 	DIR *dir;
-	//, *sDir;
 	struct dirent *entry;
 	char * d_name;
-	//char * subDirName;
-	char subDirName[] = "";
+	char subDirName[500];
+	//char subDirName[]="";
 
 	if(!(dir = opendir(workingDir))) {
 		fprintf(stderr, "Cannot open directory '%s': %s\n", workingDir, strerror(errno));
@@ -77,33 +41,33 @@ void listFilesFromDir(char* workingDir) {
 
 	strcpy(subDirName,workingDir);
 
-	while (1) {
-
-
-		if(!(entry = readdir(dir)))
-		break;
-
+	while ((entry = readdir(dir))) {
 		d_name = entry->d_name;
 
 		if (!strcmp(d_name, ".") || !strcmp(d_name, ".."))
 		continue;
-		else {
-			printf("%s/%s\n", workingDir, d_name);
-			strcat(subDirName,"/");
-			strcat(subDirName,d_name);
-			strcat(subDirName,"\0");
 
-			if ( checkType(subDirName, 'd') == 1){
+		printf("%s/%s\n", workingDir, d_name);
+		strcat(subDirName,"/");
+		strcat(subDirName,d_name);
+		strcat(subDirName,"\0");
+
+		if ( checkType(subDirName, 'd') == 1){
+			if(fork()==0)
 				listFilesFromDir(subDirName);
-
-			}
-
 		}
+		strcpy(subDirName,workingDir);
 	}
 	closedir(dir);
 
-	exit(0);
+exit(0);
+//return;
 }
+
+
+
+
+
 
 void listFilesFromSubDir(char* workingDir) {
 
