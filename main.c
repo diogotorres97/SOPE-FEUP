@@ -8,13 +8,6 @@
 #include "search.c"
 #include "exec.c"
 
-#define ARGNAME "-name"
-#define ARGTYPE "-type"
-#define ARGPERM "-perm"
-#define ACTIONPRINT "-print"
-#define ACTIONDELETE "-delete"
-#define ACTIONEXEC "-exec"
-
 int checkArgument (char *argument);
 int checkAction (char *action);
 
