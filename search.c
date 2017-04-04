@@ -9,7 +9,6 @@
 #include <errno.h>
 
 void listFilesFromDir(char *name);
-void listFilesFromSubDir(char *name);
 
 int verifyPath(char *path) {
 
@@ -23,8 +22,6 @@ int verifyPath(char *path) {
 		return 0;
 
 }
-
-
 
 
 void listFilesFromDir(char* workingDir) {
@@ -52,10 +49,10 @@ void listFilesFromDir(char* workingDir) {
 		strcat(subDirName,d_name);
 		strcat(subDirName,"\0");
 
-		if ( checkType(subDirName, 'd') == 1){
+		//if ( checkType(subDirName, 'd') == 1){
 			if(fork()==0)
 				listFilesFromDir(subDirName);
-		}
+		//}
 		strcpy(subDirName,workingDir);
 	}
 	closedir(dir);
@@ -65,47 +62,3 @@ exit(0);
 }
 
 
-
-
-
-
-void listFilesFromSubDir(char* workingDir) {
-
-	printf("\n\nWORKINGDIR: %s \n", workingDir);
-	DIR *dir;
-	//, *sDir;
-	struct dirent *entry;
-	char * d_name;
-	char subDirName[] = "";
-
-	if(!(dir = opendir(workingDir))) {
-		fprintf(stderr, "Cannot open directory '%s': %s\n", workingDir, strerror(errno));
-		exit(EXIT_FAILURE);
-	}
-
-	strcpy(subDirName,workingDir);
-
-	while (1) {
-
-		if(!(entry = readdir(dir)))
-		break;
-
-		d_name = entry->d_name;
-
-		if (!strcmp(d_name, ".") || !strcmp(d_name, ".."))
-		continue;
-		else {
-			//printf("\nEntrei aqui2\n");
-			printf("%s/%s\n", workingDir, d_name);
-			strcat(subDirName,"/");
-			strcat(subDirName,d_name);
-			strcat(subDirName,"\0");
-			if ( checkType(subDirName, 'd') ==1 ){
-				printf ("\n\n\n");
-				listFilesFromSubDir(subDirName);
-			}
-		}
-	}
-	closedir(dir);
-	exit(0);
-}
