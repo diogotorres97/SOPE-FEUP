@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,12 +7,30 @@
 #include <unistd.h>
 #include <errno.h>
 
-int verifyCheck(char * flag){
-	if( !(!strcmp(flag,"-name") || !strcmp(flag,"-type") || !strcmp(flag,"-perm"))){
-		fprintf(stderr, "Flag '%s' is  invalid: %s\n",flag,  strerror(EINVAL));
-		exit(EXIT_FAILURE);
+#define ARGNAME "-name"
+#define ARGTYPE "-type"
+#define ARGPERM "-perm"
+#define ACTIONPRINT "-print"
+#define ACTIONDELETE "-delete"
+#define ACTIONEXEC "-exec"
+
+int checkArgument(char *argument) {
+
+	if ((strcmp(argument,ARGNAME) * strcmp(argument, ARGTYPE) * strcmp(argument, ARGPERM))!=0){
+		printf("Invalid argument.\n");
+		return 0;
 	}
-	return 0;
+	else return 1;
+}
+
+int checkAction(char *action) {
+
+	if ((strcmp(action,ACTIONPRINT) * strcmp(action, ACTIONDELETE) * strcmp(action, ACTIONEXEC))!=0) {
+		printf("Invalid action.\n");
+ 
+		return 0;
+	}
+	else return 1;
 }
 
 int checkType(char * d_name, char type){
