@@ -1,7 +1,7 @@
 all: sfind
 
-sfind: main.c search.h
-	cc main.c -o sfind
+sfind: main.c search.c check.c 
+	cc -Wall main.c search.c check.c -o sfind
 
 clean:
 	rm -f sfind

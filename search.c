@@ -33,13 +33,6 @@ void pathPrinting(char *workingDir, char *d_name) {
 
 }
 
-void subDirName1(char* subDirName, char* d_name) {
-	strcat(subDirName,"/");
-	strcat(subDirName,d_name);
-	strcat(subDirName,"\0");
-	printf("CUCU:   \t %s\n", subDirName);
-	//return subDirName;
-}
 
 void listFilesFromDir(char* workingDir, char* arg, char *value, char* action) {
 	DIR *dir;
@@ -66,22 +59,26 @@ void listFilesFromDir(char* workingDir, char* arg, char *value, char* action) {
 		strcat(subDirName,"/");
 		strcat(subDirName,d_name);
 		if (!strcmp(d_name, value)){
-			if (!strcmp(action,ACTIONPRINT)){ pathPrinting(workingDir, d_name);}
-			if (!strcmp(action,ACTIONDELETE)){
-				//strcpy(toRemove[i], subDirName);
-				remove(subDirName);
+			if (!strcmp(arg, ARGNAME)){
+				if (!strcmp(action,ACTIONPRINT)){ pathPrinting(workingDir, d_name);}
+				if (!strcmp(action,ACTIONDELETE)){
+					strcpy(toRemove[i], subDirName);
+					status = remove(subDirName);
+					if (status == 0)
+						printf("File %s deleted.\n", subDirName);
+					else {
+						printf("Unable to delete.\n");
+						perror ("Error");
+					}
 
-			strcpy(subDirName,workingDir);
-				printf("Gravou %s para apagar %d\n", toRemove[i],i);
-				i++;
+					strcpy(subDirName,workingDir);
+				}
+				if (!strcmp(action,ACTIONEXEC)){ printf("EXEC\n");}
 			}
-			if (!strcmp(action,ACTIONEXEC)){ printf("EXEC\n");}
-			
-
-			//exit(0);
-			
-		}
-			//subDirName1(subDirName, d_name);
+			else if (!strcmp(arg, ARGTYPE)) {
+				printf("TYPE!\n");
+			}			
+		};
 
 		if ( checkType(subDirName, 'd') == 1){
 			if(fork()==0)
@@ -89,29 +86,18 @@ void listFilesFromDir(char* workingDir, char* arg, char *value, char* action) {
 		}
 		strcpy(subDirName,workingDir);
 	}
+
 	closedir(dir);
 
-	/*
-	printf("i = %d\n",i);
-	do {
-printf("HDA %s", toRemove[i]);
-		status = remove(toRemove[i]);
-		
-		if (status == 0)
-		printf("DELETED %s\n", toRemove[i] );
-		else {
-			printf ("Unable to delete\n");
-			perror("Error");
-		}
-	 	i--;
-	 }while(i>0);
-	 */
 	exit(0);
-//return;
 }
+
 
 void searchName(char *path, char *value, char *action) {
 
 	listFilesFromDir(path, ARGNAME, value, action);
 }
 
+void searchType(char *path, char *value, char *action) {
+	listFilesFromDir(path, ARGTYPE, value, action);
+}

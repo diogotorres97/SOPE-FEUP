@@ -14,7 +14,6 @@
 
 int main(int argc, char *argv[]) {
 
-
 	int hasError = 0;
 
 	if (argc!=5){
@@ -34,13 +33,15 @@ int main(int argc, char *argv[]) {
  	char *action = argv[4];
 
  	if(!strcmp(arg,ARGNAME)){
+
  		searchName( path, value, action);
- 		//listFilesFromDir(path, ARGNAME, value, action);
+
  	}
  	else if (!strcmp(arg,ARGTYPE)){
- 		printf ("Tipo\n");
+ 		searchType(path, value, action);
  	}
  	else { printf ("Perm\n");};
+
 
 	return 0;
 }
