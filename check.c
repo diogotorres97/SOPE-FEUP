@@ -6,13 +6,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <errno.h>
-
-#define ARGNAME "-name"
-#define ARGTYPE "-type"
-#define ARGPERM "-perm"
-#define ACTIONPRINT "-print"
-#define ACTIONDELETE "-delete"
-#define ACTIONEXEC "-exec"
+#include "check.h"
+#include "argaction.h"
 
 int checkArgument(char *argument) {
 

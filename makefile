@@ -1,4 +1,7 @@
-sfind: main.o 
-	cc main.o -o sfind
-main.o: main.c
-	cc -c main.c
+all: sfind
+
+sfind: main.c search.h
+	cc main.c -o sfind
+
+clean:
+	rm -f sfind
