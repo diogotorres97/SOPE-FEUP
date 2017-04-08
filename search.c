@@ -16,11 +16,11 @@ int verifyPath(char *path) {
 	DIR *dir;
 
 	if(!(dir = opendir(path))) {
-			fprintf(stderr, "Cannot open directory '%s': %s\n", path, strerror(errno));
-			exit(EXIT_FAILURE);
-		}
+		fprintf(stderr, "Cannot open directory '%s': %s\n", path, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
 
-		return 0;
+	return 0;
 
 }
 
@@ -53,66 +53,34 @@ void listFilesFromDir(char* workingDir, char* arg, char *value, char* action) {
 
 		strcat(subDirName,"/");
 		strcat(subDirName,d_name);
-		if (!strcmp(d_name, value)){
-			if (!strcmp(arg, ARGNAME)){
-				if (!strcmp(action,ACTIONPRINT)){ pathPrinting(workingDir, d_name);}
-				if (!strcmp(action,ACTIONDELETE)){
-					status = remove(subDirName);
-					if (status == 0)
-						printf("File %s deleted.\n", subDirName);
-					else {
-						printf("Unable to delete.\n");
-						perror ("Error");
-					}
 
-					strcpy(subDirName,workingDir);	
-				}
-				if (!strcmp(action,ACTIONEXEC)){ printf("EXEC\n");}
-			}
+
+
+		int test=0;
+
+		if (!strcmp(arg, ARGNAME)){
+			test=checkName(d_name, value);
 		}
+		else if(!strcmp(arg, ARGPERM)){
+			test=checkPerm(subDirName, value);
+		} else if(!strcmp(arg, ARGTYPE)){
+			test=checkType(subDirName, *value);
+		} else {return;}
 
-		if (!strcmp(arg, ARGTYPE)) {
-			if(checkType(subDirName, *value)!=0){
-				if(!strcmp(action,ACTIONPRINT)) {pathPrinting(workingDir, d_name);}
-				if(!strcmp(action,ACTIONDELETE)) {
-					status = remove(subDirName);
-					if (status == 0)
-						printf("File %s deleted.\n", subDirName);
-					else {
-						printf("Unable to delete.\n");
-						perror ("Error");
-					}
-
-					strcpy(subDirName,workingDir);
+		if(test!=0){
+			if(!strcmp(action,ACTIONPRINT)) {pathPrinting(workingDir, d_name);}
+			if(!strcmp(action,ACTIONDELETE)) {
+				status = remove(subDirName);
+				if (status == 0)
+				printf("File %s deleted.\n", subDirName);
+				else {
+					printf("Unable to delete.\n");
+					perror ("Error");
 				}
-				if (!strcmp(action,ACTIONEXEC)){ printf("EXEC\n");}
+
+				strcpy(subDirName,workingDir);
 			}
-		}
-
-		if (!strcmp(arg, ARGPERM)) {
-	    	struct stat fileStat;
-	    	stat(subDirName,&fileStat);
-
-
-			unsigned int isDir = (int)value[0]- 48;
-			unsigned int owner = (int)value[1]- 48;
-			unsigned int groupOwner = (int)value[2]- 48;
-			unsigned int otherUsers = (int)value[3]- 48;
-
-			
-
-		    printf("File Permissions: \t");
-			printf( (S_ISDIR(fileStat.st_mode)) ? "d" : "-");
-			printf( (fileStat.st_mode & S_IRUSR) ? "r" : "-");
-		    printf( (fileStat.st_mode & S_IWUSR) ? "w" : "-");
-		    printf( (fileStat.st_mode & S_IXUSR) ? "x" : "-");
-		    printf( (fileStat.st_mode & S_IRGRP) ? "r" : "-");
-		    printf( (fileStat.st_mode & S_IWGRP) ? "w" : "-");
-		    printf( (fileStat.st_mode & S_IXGRP) ? "x" : "-");
-		    printf( (fileStat.st_mode & S_IROTH) ? "r" : "-");
-		    printf( (fileStat.st_mode & S_IWOTH) ? "w" : "-");
-		    printf( (fileStat.st_mode & S_IXOTH) ? "x" : "-");
-		    printf("\n\n");
+			if (!strcmp(action,ACTIONEXEC)){ printf("EXEC\n");}
 		}
 
 		if ( checkType(subDirName, 'd') == 1){
@@ -143,4 +111,3 @@ void searchType(char *path, char *value, char *action) {
 void searchPerm(char *path, char *value, char *action) {
 	listFilesFromDir(path, ARGPERM, value, action);
 }
-

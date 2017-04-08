@@ -22,7 +22,7 @@ int checkAction(char *action) {
 
 	if ((strcmp(action,ACTIONPRINT) * strcmp(action, ACTIONDELETE) * strcmp(action, ACTIONEXEC))!=0) {
 		printf("Invalid action.\n");
- 
+
 		return 0;
 	}
 	else return 1;
@@ -67,37 +67,34 @@ int checkType(char * d_name, char type){
 	return 0;
 
 }
-int checkName(struct dirent *direntp, char name[]){
+int checkName(char *d_name, char* name){
 
 
-  if(strcmp(direntp->d_name,name)==0)
-    return 1;
-  else
-    return 0;
+	if(strcmp(d_name,name)==0)
+	return 1;
+	else
+	return 0;
 
 }
 
-int checkPerm(char *perm){
+int checkPerm(char * d_name, char* perm){
 
-	unsigned int isDir = (int)perm[0]- 48;
-	unsigned int owner = (int)perm[1]- 48;
-	unsigned int groupOwner = (int)perm[2]- 48;
-	unsigned int otherUsers = (int)perm[3]- 48;
-	if(strlen(perm) ==4 &&
-		isDir<=1 &&
-		owner<=7 &&
-		groupOwner<=7 &&
-		otherUsers<=7){
-		
-		printf (":D\n");
+	struct stat stat_buf;
 
-		return 1;
-	}
-	else{
-		printf (":(\n");
-		
-		return 0;
+	if(lstat(d_name, &stat_buf) == -1){
+		fprintf(stderr, "Could not read status from current directory");
+		exit(-1);
 	}
 
 
+	int mask = S_IRWXU|S_IRWXG|S_IRWXO;
+	mask &=  stat_buf.st_mode;
+
+	char octal[4];
+	sprintf(octal,"%#o", mask);
+
+	if(strcmp(perm, octal)==0)
+	return 1;
+	else
+	return 0;
 }
