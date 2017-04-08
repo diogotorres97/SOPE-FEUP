@@ -9,6 +9,6 @@ int checkName(struct dirent *direntp, char *name);
 
 int checkType(char *d_name, char type);
 
-int checkPerm(struct dirent *direntp, int perm);
+int checkPerm(char *perm);
 
 #endif

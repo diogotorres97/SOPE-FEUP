@@ -40,7 +40,12 @@ int main(int argc, char *argv[]) {
  	else if (!strcmp(arg,ARGTYPE)){
  		searchType(path, value, action);
  	}
- 	else { printf ("Perm\n");};
+ 	else {
+ 		if(checkPerm(value))
+ 			searchPerm(path, value, action);
+ 		else
+ 			return 0;
+ 	}
 
 
 	return 0;

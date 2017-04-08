@@ -11,9 +11,6 @@
 #include "argaction.h"
 #include "check.h"
 
-static char toRemove[10][500];
-static int i = 0;
-
 int verifyPath(char *path) {
 
 	DIR *dir;
@@ -41,8 +38,6 @@ void listFilesFromDir(char* workingDir, char* arg, char *value, char* action) {
 	char subDirName[500];
 	int status = 0;
 
-	//char subDirName[]="";
-
 	if(!(dir = opendir(workingDir))) {
 		fprintf(stderr, "Cannot open directory '%s': %s\n", workingDir, strerror(errno));
 		exit(EXIT_FAILURE);
@@ -62,7 +57,24 @@ void listFilesFromDir(char* workingDir, char* arg, char *value, char* action) {
 			if (!strcmp(arg, ARGNAME)){
 				if (!strcmp(action,ACTIONPRINT)){ pathPrinting(workingDir, d_name);}
 				if (!strcmp(action,ACTIONDELETE)){
-					strcpy(toRemove[i], subDirName);
+					status = remove(subDirName);
+					if (status == 0)
+						printf("File %s deleted.\n", subDirName);
+					else {
+						printf("Unable to delete.\n");
+						perror ("Error");
+					}
+
+					strcpy(subDirName,workingDir);	
+				}
+				if (!strcmp(action,ACTIONEXEC)){ printf("EXEC\n");}
+			}
+		}
+
+		if (!strcmp(arg, ARGTYPE)) {
+			if(checkType(subDirName, *value)!=0){
+				if(!strcmp(action,ACTIONPRINT)) {pathPrinting(workingDir, d_name);}
+				if(!strcmp(action,ACTIONDELETE)) {
 					status = remove(subDirName);
 					if (status == 0)
 						printf("File %s deleted.\n", subDirName);
@@ -75,15 +87,40 @@ void listFilesFromDir(char* workingDir, char* arg, char *value, char* action) {
 				}
 				if (!strcmp(action,ACTIONEXEC)){ printf("EXEC\n");}
 			}
-			else if (!strcmp(arg, ARGTYPE)) {
-				printf("TYPE!\n");
-			}			
-		};
+		}
+
+		if (!strcmp(arg, ARGPERM)) {
+	    	struct stat fileStat;
+	    	stat(subDirName,&fileStat);
+
+
+			unsigned int isDir = (int)value[0]- 48;
+			unsigned int owner = (int)value[1]- 48;
+			unsigned int groupOwner = (int)value[2]- 48;
+			unsigned int otherUsers = (int)value[3]- 48;
+
+			
+
+		    printf("File Permissions: \t");
+			printf( (S_ISDIR(fileStat.st_mode)) ? "d" : "-");
+			printf( (fileStat.st_mode & S_IRUSR) ? "r" : "-");
+		    printf( (fileStat.st_mode & S_IWUSR) ? "w" : "-");
+		    printf( (fileStat.st_mode & S_IXUSR) ? "x" : "-");
+		    printf( (fileStat.st_mode & S_IRGRP) ? "r" : "-");
+		    printf( (fileStat.st_mode & S_IWGRP) ? "w" : "-");
+		    printf( (fileStat.st_mode & S_IXGRP) ? "x" : "-");
+		    printf( (fileStat.st_mode & S_IROTH) ? "r" : "-");
+		    printf( (fileStat.st_mode & S_IWOTH) ? "w" : "-");
+		    printf( (fileStat.st_mode & S_IXOTH) ? "x" : "-");
+		    printf("\n\n");
+		}
 
 		if ( checkType(subDirName, 'd') == 1){
-			if(fork()==0)
-				listFilesFromDir(subDirName, ARGNAME, value, action);
+			if(fork()==0){
+				listFilesFromDir(subDirName, arg, value, action);
+			}
 		}
+
 		strcpy(subDirName,workingDir);
 	}
 
@@ -99,5 +136,11 @@ void searchName(char *path, char *value, char *action) {
 }
 
 void searchType(char *path, char *value, char *action) {
+
 	listFilesFromDir(path, ARGTYPE, value, action);
 }
+
+void searchPerm(char *path, char *value, char *action) {
+	listFilesFromDir(path, ARGPERM, value, action);
+}
+

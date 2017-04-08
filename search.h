@@ -11,6 +11,8 @@ void searchName(char *path, char *value, char *action);
 
 void searchType(char *path, char *value, char *action);
 
+void searchPerm(char *path, char *value, char *action);
+
 void listFilesFromDir(char *path, char *arg, char *value, char *action);
 
 #endif

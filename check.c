@@ -31,36 +31,34 @@ int checkAction(char *action) {
 int checkType(char * d_name, char type){
 	struct stat stat_buf;
 
-	if(lstat(d_name, &stat_buf) == -1){
-		fprintf(stderr, "Could not read status from current directory\n %s",d_name);
-		exit(-1);
-	}
+	if(lstat(d_name, &stat_buf) == -1){return 1;}
+
 
 	switch (type){
 		case 'c': //character (unbuffered) special
-		if (S_ISCHR(stat_buf.st_mode)) printf("\nc\n");
+		if (S_ISCHR(stat_buf.st_mode)) return 1;
 		break;
 		case 'd': //directory
-		if (S_ISDIR(stat_buf.st_mode)) printf("\nd\n");
+		if (S_ISDIR(stat_buf.st_mode)) return 1;
 		break;
 
 		case 'p': // named pipe (FIFO)
-		if (S_ISFIFO(stat_buf.st_mode)) printf("\np\n");
+		if (S_ISFIFO(stat_buf.st_mode)) return 1;
 		break;
 
 		case 'f': // regular file
-		if (S_ISREG(stat_buf.st_mode)) printf("\nf\n");
+		if (S_ISREG(stat_buf.st_mode)) return 1;
 		break;
 
 		case 'l': //symbolic link;
-		if (S_ISLNK(stat_buf.st_mode)) printf("\nlink\n");
+		if (S_ISLNK(stat_buf.st_mode)) return 1;
 		break;
 
 		case 's': //socket
-		if (S_ISSOCK(stat_buf.st_mode)) printf("\ns\n");
+		if (S_ISSOCK(stat_buf.st_mode)) return 1;
 		break;
 		case 'D': //door (Solaris)
-		if (S_ISBLK(stat_buf.st_mode)) printf("\nD\n");
+		if (S_ISBLK(stat_buf.st_mode)) return 1;
 		break;
 
 		default:
@@ -69,9 +67,6 @@ int checkType(char * d_name, char type){
 	return 0;
 
 }
-
-
-
 int checkName(struct dirent *direntp, char name[]){
 
 
@@ -82,21 +77,27 @@ int checkName(struct dirent *direntp, char name[]){
 
 }
 
-int checkPerm(struct dirent *direntp, int perm){
+int checkPerm(char *perm){
 
- struct stat stat_buf;
+	unsigned int isDir = (int)perm[0]- 48;
+	unsigned int owner = (int)perm[1]- 48;
+	unsigned int groupOwner = (int)perm[2]- 48;
+	unsigned int otherUsers = (int)perm[3]- 48;
+	if(strlen(perm) ==4 &&
+		isDir<=1 &&
+		owner<=7 &&
+		groupOwner<=7 &&
+		otherUsers<=7){
+		
+		printf (":D\n");
 
- if(lstat(direntp->d_name, &stat_buf) == -1){
-  fprintf(stderr, "Could not read status from current directory");
-  exit(-1);
-}
-
-unsigned long mask = S_IRWXU|S_IRWXG|S_IRWXO;
-mask &=  stat_buf.st_mode;
-if(mask == perm)
-  return 1;
-else
-  return 0;
+		return 1;
+	}
+	else{
+		printf (":(\n");
+		
+		return 0;
+	}
 
 
 }
