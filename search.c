@@ -31,7 +31,7 @@ void pathPrinting(char *workingDir, char *d_name) {
 }
 
 
-void listFilesFromDir(char* workingDir, char* arg, char *value, char* action) {
+void listFilesFromDir(char* workingDir, char* arg, char *value, char* action, char *exec[], int execSize) {
 	DIR *dir;
 	struct dirent *entry;
 	char * d_name;
@@ -47,6 +47,7 @@ void listFilesFromDir(char* workingDir, char* arg, char *value, char* action) {
 
 	while ((entry = readdir(dir))) {
 		d_name = entry->d_name;
+		//printf("Name: %s\n",d_name);
 
 		if (!strcmp(d_name, ".") || !strcmp(d_name, ".."))
 		continue;
@@ -80,12 +81,24 @@ void listFilesFromDir(char* workingDir, char* arg, char *value, char* action) {
 
 				strcpy(subDirName,workingDir);
 			}
-			if (!strcmp(action,ACTIONEXEC)){ printf("EXEC\n");}
+			if (!strcmp(action,ACTIONEXEC)){ 
+				//printf("EXEC\n");
+					if(fork() == 0){
+					char filePath[500];
+					strcpy(filePath,workingDir);
+					strcat(filePath, "/");
+					strcat(filePath, d_name);
+					exec[execSize] = filePath;
+					exec[execSize+1] = NULL;
+					execvp(exec[0],exec);
+					printf("Exec Failed\n");
+				}	
+			}
 		}
 
 		if ( checkType(subDirName, 'd') == 1){
 			if(fork()==0){
-				listFilesFromDir(subDirName, arg, value, action);
+				listFilesFromDir(subDirName, arg, value, action, exec, execSize);
 			}
 		}
 
@@ -98,16 +111,16 @@ void listFilesFromDir(char* workingDir, char* arg, char *value, char* action) {
 }
 
 
-void searchName(char *path, char *value, char *action) {
+void searchName(char *path, char *value, char *action, char *exec[], int execSize) {
 
-	listFilesFromDir(path, ARGNAME, value, action);
+	listFilesFromDir(path, ARGNAME, value, action, exec, execSize);
 }
 
-void searchType(char *path, char *value, char *action) {
+void searchType(char *path, char *value, char *action, char *exec[], int execSize) {
 
-	listFilesFromDir(path, ARGTYPE, value, action);
+	listFilesFromDir(path, ARGTYPE, value, action, exec, execSize);
 }
 
-void searchPerm(char *path, char *value, char *action) {
-	listFilesFromDir(path, ARGPERM, value, action);
+void searchPerm(char *path, char *value, char *action, char *exec[], int execSize) {
+	listFilesFromDir(path, ARGPERM, value, action, exec, execSize);
 }
