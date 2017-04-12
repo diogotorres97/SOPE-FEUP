@@ -35,35 +35,35 @@ int checkType(char * d_name, char type){
 
 
 	switch (type){
-		case 'c': //character (unbuffered) special
+	case 'c': //character (unbuffered) special
 		if (S_ISCHR(stat_buf.st_mode)) return 1;
 		break;
 
-		case 'd': //directory
+	case 'd': //directory
 		if (S_ISDIR(stat_buf.st_mode)) return 1;
 		break;
 
-		case 'p': // named pipe (FIFO)
+	case 'p': // named pipe (FIFO)
 		if (S_ISFIFO(stat_buf.st_mode)) return 1;
 		break;
 
-		case 'f': // regular file
+	case 'f': // regular file
 		if (S_ISREG(stat_buf.st_mode)) return 1;
 		break;
 
-		case 'l': //symbolic link;
+	case 'l': //symbolic link;
 		if (S_ISLNK(stat_buf.st_mode)) return 1;
 		break;
 
-		case 's': //socket
+	case 's': //socket
 		if (S_ISSOCK(stat_buf.st_mode)) return 1;
 		break;
 
-		case 'D': //door (Solaris)
+	case 'D': //door (Solaris)
 		if (S_ISBLK(stat_buf.st_mode)) return 1;
 		break;
 
-		default:
+	default:
 		break;
 	}
 	return 0;
@@ -72,9 +72,9 @@ int checkType(char * d_name, char type){
 int checkName(char *d_name, char* name){
 
 	if(strcmp(d_name,name)==0)
-	return 1;
+		return 1;
 	else
-	return 0;
+		return 0;
 
 }
 
@@ -94,7 +94,7 @@ int checkPerm(char * d_name, char* perm){
 	sprintf(octal,"%#o", mask);
 
 	if(strcmp(perm, octal)==0)
-	return 1;
+		return 1;
 	else
-	return 0;
+		return 0;
 }

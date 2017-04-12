@@ -14,7 +14,7 @@
 #include "check.h"
 
 void sigint_handler2(int signo){
-  pause();
+	pause();
 }
 
 int verifyPath(char *path) {
@@ -57,7 +57,7 @@ void listFilesFromDir(char* workingDir, char* arg, char *value, char* action, ch
 		//printf("Name: %s\n",d_name);
 
 		if (!strcmp(d_name, ".") || !strcmp(d_name, ".."))
-		continue;
+			continue;
 
 		strcat(subDirName,"/");
 		strcat(subDirName,d_name);
@@ -80,7 +80,7 @@ void listFilesFromDir(char* workingDir, char* arg, char *value, char* action, ch
 			if(!strcmp(action,ACTIONDELETE)) {
 				status = remove(subDirName);
 				if (status == 0)
-				printf("File %s deleted.\n", subDirName);
+					printf("File %s deleted.\n", subDirName);
 				else {
 					printf("Unable to delete.\n");
 					perror ("Error");
@@ -89,7 +89,7 @@ void listFilesFromDir(char* workingDir, char* arg, char *value, char* action, ch
 				strcpy(subDirName,workingDir);
 			}
 			if (!strcmp(action,ACTIONEXEC)){
-					if((pid=fork()) == 0){
+				if((pid=fork()) == 0){
 					char filePath[500];
 					strcpy(filePath,workingDir);
 					strcat(filePath, "/");
@@ -99,8 +99,8 @@ void listFilesFromDir(char* workingDir, char* arg, char *value, char* action, ch
 					execvp(exec[0],exec);
 					printf("Exec Failed\n");
 				} else if ((pid = fork()) < 0) {
-					 fprintf(stderr,"fork error\n");
-					 exit(1);
+					fprintf(stderr,"fork error\n");
+					exit(1);
 				}
 			}
 		}
@@ -110,17 +110,17 @@ void listFilesFromDir(char* workingDir, char* arg, char *value, char* action, ch
 			wait(NULL); //TODO:CHECK THIS WAIT
 
 			if ((pid = fork()) < 0) {
-				 fprintf(stderr,"fork error\n");
-				 exit(1);
+				fprintf(stderr,"fork error\n");
+				exit(1);
 			}
-				else 	if(pid==0){
+			else 	if(pid==0){
 				struct sigaction funct;
 				// prepare the 'sigaction struct' for ignoring SIGINT
-					funct.sa_handler = sigint_handler2;
-					sigemptyset(&funct.sa_mask);
-					funct.sa_flags = 0;
+				funct.sa_handler = sigint_handler2;
+				sigemptyset(&funct.sa_mask);
+				funct.sa_flags = 0;
 				// ignore SIGINT and get the original handler
-					sigaction(SIGINT,&funct,NULL);
+				sigaction(SIGINT,&funct,NULL);
 
 				listFilesFromDir(subDirName, arg, value, action, exec, execSize);
 			}
