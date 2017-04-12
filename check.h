@@ -10,4 +10,5 @@ int checkName(char *d_name, char* name);
 int checkType(char *d_name, char type);
 
 int checkPerm(char * d_name, char* perm);
+
 #endif

@@ -38,6 +38,7 @@ int checkType(char * d_name, char type){
 		case 'c': //character (unbuffered) special
 		if (S_ISCHR(stat_buf.st_mode)) return 1;
 		break;
+
 		case 'd': //directory
 		if (S_ISDIR(stat_buf.st_mode)) return 1;
 		break;
@@ -57,6 +58,7 @@ int checkType(char * d_name, char type){
 		case 's': //socket
 		if (S_ISSOCK(stat_buf.st_mode)) return 1;
 		break;
+
 		case 'D': //door (Solaris)
 		if (S_ISBLK(stat_buf.st_mode)) return 1;
 		break;
@@ -68,7 +70,6 @@ int checkType(char * d_name, char type){
 
 }
 int checkName(char *d_name, char* name){
-
 
 	if(strcmp(d_name,name)==0)
 	return 1;
@@ -85,7 +86,6 @@ int checkPerm(char * d_name, char* perm){
 		fprintf(stderr, "Could not read status from current directory");
 		exit(-1);
 	}
-
 
 	int mask = S_IRWXU|S_IRWXG|S_IRWXO;
 	mask &=  stat_buf.st_mode;
