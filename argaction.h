@@ -7,5 +7,6 @@
 #define ACTIONPRINT "-print"
 #define ACTIONDELETE "-delete"
 #define ACTIONEXEC "-exec"
+#define PATHSIZE 500
 
 #endif

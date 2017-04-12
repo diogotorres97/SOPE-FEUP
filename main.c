@@ -20,10 +20,7 @@ void  sigint_handler(int signo){
 	while((c = getchar()) != '\n' && c != EOF) ; //Clear stdin
 
 	if(answer == 'Y' || answer == 'y'){
-		char groupid[256];
-		sprintf(groupid, "-%d", getpgrp());
-		execlp("kill", "kill", "-9", groupid, NULL); //Kill with SIGTERM signal
-		//exit(0);
+		exit(0);
 	}
 }
 

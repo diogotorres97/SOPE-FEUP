@@ -41,7 +41,7 @@ void listFilesFromDir(char* workingDir, char* arg, char *value, char* action, ch
 	DIR *dir;
 	struct dirent *entry;
 	char * d_name;
-	char subDirName[500];
+	char subDirName[PATHSIZE];
 	int status = 0;
 	int pid;
 
@@ -54,7 +54,6 @@ void listFilesFromDir(char* workingDir, char* arg, char *value, char* action, ch
 
 	while ((entry = readdir(dir))) {
 		d_name = entry->d_name;
-		//printf("Name: %s\n",d_name);
 
 		if (!strcmp(d_name, ".") || !strcmp(d_name, ".."))
 			continue;
@@ -89,16 +88,17 @@ void listFilesFromDir(char* workingDir, char* arg, char *value, char* action, ch
 				strcpy(subDirName,workingDir);
 			}
 			if (!strcmp(action,ACTIONEXEC)){
-				if((pid=fork()) == 0){
-					char filePath[500];
+				if((pid = fork()) == 0){
+					char filePath[PATHSIZE];
 					strcpy(filePath,workingDir);
 					strcat(filePath, "/");
 					strcat(filePath, d_name);
 					exec[execSize] = filePath;
 					exec[execSize+1] = NULL;
 					execvp(exec[0],exec);
-					printf("Exec Failed\n");
-				} else if ((pid = fork()) < 0) {
+					printf("sfind: '%s': No such file or directory\n", exec[0]);
+					exit(1);
+				} else if (pid < 0) {
 					fprintf(stderr,"fork error\n");
 					exit(1);
 				}
