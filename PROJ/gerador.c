@@ -79,12 +79,12 @@ void * gerar(void * arg){
         dur = (rand()%tempoMax)+1;
         pedidos[i].time = dur;
         pedidos[i].rNo = 0;
-        write(fd,&pedidos[i],sizeof(struct Pedido));
         pthread_mutex_lock(&file_lock);
         end = clock();
         t_dif = (double) (end-begin)/CLOCKS_PER_SEC;
         fprintf(f,"%f - %u - %i: %c - %d - %s\n", t_dif, (unsigned int) getpid(), i, pedidos[i].g, dur, "PEDIDO");     
         pthread_mutex_unlock(&file_lock);
+        write(fd,&pedidos[i],sizeof(struct Pedido));
    }
    close(fd);
    return NULL;
@@ -147,9 +147,19 @@ void *recolocar(void * arg){
       }
       //printf("Pedido - id: %d, gender; %c, time: %d\n",p.id,p.g,p.time);
       p.rNo++;
-      
-      if(p.rNo != 3)
+
+     if(p.rNo != 3){
           write(fd2,&p,sizeof(struct Pedido));
+          if(p.g == 'M')
+             stats[2]++;     //AUMENTA REJEITADOS M
+          else
+             stats[3]++;     //AUMENTA REJEITADOS F
+      	  pthread_mutex_lock(&file_lock);
+      	  end = clock();
+      	  t_dif = (double) (end-begin)/CLOCKS_PER_SEC;
+      	  fprintf(f,"%f - %u - %i: %c - %d - %s\n", t_dif, (unsigned int) getpid(), p.id, p.g, p.time, "REJEITADO");
+     	  pthread_mutex_unlock(&file_lock);
+      }
       else{
           if(p.g == 'M')    //AUMENTA DESCARTADOS M
              stats[4]++;
@@ -160,18 +170,7 @@ void *recolocar(void * arg){
           t_dif = (double) (end-begin)/CLOCKS_PER_SEC;
           fprintf(f,"%f - %u - %i: %c - %d - %s\n", t_dif, (unsigned int) getpid(), p.id, p.g, p.time, "DESCARTADO");
           pthread_mutex_unlock(&file_lock);
-          continue;
       }
-      
-      if(p.g == 'M')
-          stats[2]++;     //AUMENTA REJEITADOS M
-      else
-          stats[3]++;     //AUMENTA REJEITADOS F
-      pthread_mutex_lock(&file_lock);
-      end = clock();
-      t_dif = (double) (end-begin)/CLOCKS_PER_SEC;
-      fprintf(f,"%f - %u - %i: %c - %d - %s\n", t_dif, (unsigned int) getpid(), p.id, p.g, p.time, "REJEITADO");
-      pthread_mutex_unlock(&file_lock);
    }
    printf("Gerador: recolocar terminou\n");
    close(fd2);
