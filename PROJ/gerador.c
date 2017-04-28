@@ -11,7 +11,7 @@
 
 char entrada[] = "entrada";
 char rejeitados[] = "rejeitados";
-char fich[30] = "ger.txt";
+char fich[30] = "ger.";
 int pedidosNo;
 int tempoMax;
 clock_t begin;
@@ -29,13 +29,6 @@ void * gerar(void * arg){
 
    //OPEN FILE
    /*
-   char pid[20];
-   sprintf(pid, "%u", (unsigned int) getpid());
-   strcat(fich,pid);
-   strcat(fich,".txt");
-   printf("%s\n", fich);
-   */
-   /*
    int ft = open(fich,O_CREAT | O_WRONLY | O_APPEND | O_SYNC , 0600);
    if(ft == -1){
       printf("Gerador: Couldnt open file d\n");
@@ -51,7 +44,7 @@ void * gerar(void * arg){
 
    //OPEN FIFO
    for(i = 0; i < 5; i++){
-     fd = open(entrada, O_WRONLY | O_NONBLOCK);
+     fd = open(entrada, O_WRONLY);
      if(fd == -1)
         usleep(500);
      else
@@ -185,6 +178,10 @@ int main(int argc, char*argv[]){
    begin = clock();                //COMECAR A CONTAR O TEMPO
    pedidosNo = atoi(argv[1]);
    tempoMax = atoi(argv[2]);
+
+   char pid[20];
+   sprintf(pid, "%u", (unsigned int) getpid());
+   strcat(fich,pid);
 
    int ft = open(fich, O_WRONLY | O_CREAT | O_TRUNC | O_SYNC, 0600);
      if(ft == -1){

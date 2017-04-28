@@ -5,17 +5,36 @@
 #include <sys/stat.h> 
 #include <sys/file.h> 
 #include <pthread.h>
+#include <string.h>
 #include "pedido.h"
 
 char entrada[] = "entrada";
 char rejeitados[] = "rejeitados";
+char fich[30] = "bal.";
 int pedidosNo;
 int processados;
+FILE * f;
 
 int main(int argc, char*argv[]){
    if(argc != 1)
       return 1;
    int fd, fd2, i, timeout = 5;
+   
+   char pid[20];
+   sprintf(pid, "%u", (unsigned int) getpid());
+   strcat(fich,pid);
+
+   int ft = open(fich, O_WRONLY | O_CREAT | O_TRUNC | O_SYNC, 0600);
+     if(ft == -1){
+      printf("Gerador: Couldnt open file d\n");
+      exit(1);
+   }
+ 
+   f = fdopen(ft, "w");
+   if(f == NULL){
+      printf("Gerador: Couldnt open file\n");
+      exit(1);
+   }
 
    //MAKE FIFO
    if(mkfifo(entrada,0660)){
