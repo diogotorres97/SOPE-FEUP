@@ -9,8 +9,8 @@
 #include <time.h>
 #include "pedido.h"
 
-char entrada[] = "entrada";
-char rejeitados[] = "rejeitados";
+const char entrada[] = "entrada";
+const char rejeitados[] = "rejeitados";
 char fich[30] = "ger.";
 int pedidosNo;
 int tempoMax;
