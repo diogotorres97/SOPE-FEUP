@@ -20,7 +20,7 @@
   char fich[30] = "bal.";
   int pedidosAtuais = 0;
   int processados = 0;
-  struct Pedido * pedidoEspera = NULL;
+  //struct Pedido * pedidoEspera = NULL;
   FILE * f;
 
   clock_t begin;
@@ -101,13 +101,13 @@
 
      int ft = open(fich, O_WRONLY | O_CREAT | O_TRUNC | O_SYNC, 0600);
        if(ft == -1){
-        printf("Gerador: Couldnt open file d\n");
+        printf("Sauna: Couldnt open file d\n");
         exit(1);
      }
 
      f = fdopen(ft, "w");
      if(f == NULL){
-        printf("Gerador: Couldnt open file\n");
+        printf("Sauna: Couldnt open file\n");
         exit(1);
      }
 
@@ -157,15 +157,20 @@
      struct Pedido p;
      int br;
 
+
+//struct Pedido* pedidoEspera;
+
      while(1){
+       struct Pedido* pedidoEspera = (struct Pedido *) malloc(sizeof(struct Pedido)); // TODO:CHECK IF DON'T DELETE pedidoEspera
       if(pedidosAtuais == pedidosMax){
           if(pedidoEspera == NULL){
             br = read(fd,&p,sizeof(struct Pedido));
             //printf("Sauna: br - %d\n", br);
+
             printMessage(getpid(), pthread_self(),p,RECEBIDO);
             if(gender == p.g){
                 printf("Sauna: pedido em espera\n");
-                pedidoEspera = (struct Pedido *) malloc(sizeof(struct Pedido));
+                //pedidoEspera = (struct Pedido *) malloc(sizeof(struct Pedido));
                 *pedidoEspera = p;
                 printf("Pedido - id: %d, gender; %c, time: %d\n",pedidoEspera->id,pedidoEspera->g,pedidoEspera->time);
             }
@@ -176,6 +181,7 @@
       }
       else if(pedidosAtuais == pedidosMax-1){
          if(pedidoEspera != NULL){
+             printf("Sauna 1 -  pedidoAtuais: %d, pedidosMax; %d, processados: %d\n",pedidosAtuais,pedidosMax,processados);
             pedidosAtivos[pedidoEspera->id] = *pedidoEspera;
             tid[tidIndex] = tidIndex;
             pthread_mutex_lock(&pedidos_lock);
@@ -185,7 +191,7 @@
             pthread_create(&tid[tidIndex], NULL, saunar, &pedidosAtivos[pedidoEspera->id]);
             printMessage(getpid(), tid[tidIndex],p,SERVIDO);
             tidIndex++;
-            free(pedidoEspera);
+
             pedidoEspera = NULL;
         }
         else{
@@ -253,6 +259,7 @@
           break;
       }
      }
+     //free(pedidoEspera);
      close(fd);
      printf("Sauna: processados: %d\n", processados);
      pthread_exit(NULL);

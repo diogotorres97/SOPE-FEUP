@@ -107,7 +107,7 @@ void *recolocar(void * arg){
 
    //CREATE FIFO REJEITADOS
    if(mkfifo(rejeitados,0660)){
-     printf("Gerador: Couldnt create fifo\n");
+     printf("Gerador: Couldnt create fifo \n");
    }
 
    //OPEN FIFO REJEITADOS
