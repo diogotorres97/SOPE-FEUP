@@ -163,8 +163,7 @@ int main(int argc, char*argv[]){
   int pedidos;
 
   while(1){
-    // TODO:CHECK IF DON'T DELETE pedidoEspera
-
+    
     pthread_mutex_lock(&pedidos_lock);
     pedidos= pedidosAtuais;
     pthread_mutex_unlock(&pedidos_lock);

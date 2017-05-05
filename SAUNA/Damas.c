@@ -1,3 +1,17 @@
+typedef struct {
+        int capacity;
+        int number_of_requests; //TODO: Initialize
+
+        int requests_received_fd;
+        int requests_rejected_fd;
+        int statistics_fd;
+
+        struct timespec starting_time;
+
+        sem_t* sauna_semaphore;
+        pthread_mutex_t sauna_mutex;
+}sauna_info;
+
 int create_fifos(){
         mode_t permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP; //Read and write for file owner and group owner
 
