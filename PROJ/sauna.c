@@ -1,9 +1,9 @@
   #include <unistd.h>
   #include <stdio.h>
   #include <stdlib.h>
-  #include <sys/types.h> 
-  #include <sys/stat.h> 
-  #include <sys/file.h> 
+  #include <sys/types.h>
+  #include <sys/stat.h>
+  #include <sys/file.h>
   #include <pthread.h>
   #include <string.h>
   #include <stdbool.h>
@@ -12,6 +12,7 @@
   #define RECEBIDO 0
   #define REJEITADO 1
   #define SERVIDO 2
+  #define TIMEOUT 5
 
   const char entrada[] = "entrada";
   const char rejeitados[] = "rejeitados";
@@ -38,11 +39,11 @@
 
   void* saunar(void * pedido){
      struct Pedido p = *(struct Pedido *) pedido;
-     //printf("Pedido - id: %d, gender; %c, time: %d\n",p.id,p.g,p.time); 
-     
+     //printf("Pedido - id: %d, gender; %c, time: %d\n",p.id,p.g,p.time);
+
      /*
      pthread_mutex_lock(&processados_lock);
-     printf("Sauna: Thread processados++\n"); 
+     printf("Sauna: Thread processados++\n");
      processados++;
      pthread_mutex_unlock(&processados_lock);
      */
@@ -66,7 +67,7 @@
     pedidosAtuais++;
     pthread_mutex_unlock(&pedidos_lock);
     processados++;
-    pthread_create(&tid[tidIndex], NULL, saunar, &pedidosAtivos[p.id]); 
+    pthread_create(&tid[tidIndex], NULL, saunar, &pedidosAtivos[p.id]);
     tidIndex++;
   }
   */
@@ -81,7 +82,7 @@
 
   void rejectPedido(struct Pedido * p, int fd){
     write(fd, p, sizeof(struct Pedido));
-    if(p->rNo+1==3)
+    if(p->rNo == 2)
       processados++;
     printMessage(getpid(), pthread_self(),*p,REJEITADO);
   }
@@ -92,8 +93,8 @@
 
      begin = clock();     //start counting time
 
-     int fd, fd2, i, timeout = 5;
-     
+     int fd, fd2, i;
+
      char pid[20];
      sprintf(pid, "%u", (unsigned int) getpid());
      strcat(fich,pid);
@@ -103,7 +104,7 @@
         printf("Gerador: Couldnt open file d\n");
         exit(1);
      }
-   
+
      f = fdopen(ft, "w");
      if(f == NULL){
         printf("Gerador: Couldnt open file\n");
@@ -121,19 +122,18 @@
         printf("Sauna: Couldnt open fifo\n");
         exit(1);
      }
-     
+
      int pedidosNo;
      if(read(fd,&pedidosNo,sizeof(int)) == -1){
         printf("Sauna: Falhou ler pedidos\n");
         exit(1);
      }
 
-     printf("Sauna: NoPedidos %d\n",pedidosNo);	
-     processados = 0;
+     printf("Sauna: NoPedidos %d\n",pedidosNo);
 
 
      //OPEN FIFO
-     for(i = 0; i < 5; i++){
+     for(i = 0; i < TIMEOUT; i++){
        fd2 = open(rejeitados, O_WRONLY);
        printf("Ciclo para abrir rejeitados\n");
 
@@ -143,11 +143,11 @@
           break;
      }
 
-     if(i == timeout){
+     if(i == TIMEOUT){
         printf("Sauna: Couldnt open fifo\n");
         exit(1);
      }
-     
+
      //printf("Sauna: Chegou aqui\n");
      char gender;
      int pedidosMax = atoi(argv[1]);
@@ -155,7 +155,8 @@
      unsigned int tidIndex = 0;
      struct Pedido pedidosAtivos[pedidosNo];
      struct Pedido p;
-     unsigned int br;
+     int br;
+
      while(1){
       if(pedidosAtuais == pedidosMax){
           if(pedidoEspera == NULL){
@@ -166,7 +167,7 @@
                 printf("Sauna: pedido em espera\n");
                 pedidoEspera = (struct Pedido *) malloc(sizeof(struct Pedido));
                 *pedidoEspera = p;
-                printf("Pedido - id: %d, gender; %c, time: %d\n",pedidoEspera->id,pedidoEspera->g,pedidoEspera->time); 
+                printf("Pedido - id: %d, gender; %c, time: %d\n",pedidoEspera->id,pedidoEspera->g,pedidoEspera->time);
             }
             else {
                rejectPedido(&p, fd2);
@@ -235,7 +236,7 @@
               pedidosAtuais++;
               pthread_mutex_unlock(&pedidos_lock);
               processados++;
-              pthread_create(&tid[tidIndex], NULL, saunar, &pedidosAtivos[p.id]); 
+              pthread_create(&tid[tidIndex], NULL, saunar, &pedidosAtivos[p.id]);
               printMessage(getpid(), tid[tidIndex],p,SERVIDO);
               tidIndex++;
           }
@@ -244,7 +245,7 @@
           }
       }
 
-      printf("Sauna: pedidosAtuais: %d\n", pedidosAtuais);	 
+      printf("Sauna: pedidosAtuais: %d\n", pedidosAtuais);
       printf("Sauna: processados: %d\n", processados);
       if(processados == pedidosNo){
           printf("Sauna: Final processados: %d\n", processados);

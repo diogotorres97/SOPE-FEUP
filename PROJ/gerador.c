@@ -1,13 +1,15 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/types.h> 
-#include <sys/stat.h> 
-#include <sys/file.h> 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/file.h>
 #include <pthread.h>
 #include <string.h>
 #include <time.h>
 #include "pedido.h"
+
+#define TIMEOUT 5
 
 const char entrada[] = "entrada";
 const char rejeitados[] = "rejeitados";
@@ -24,8 +26,8 @@ void * gerar(void * arg){
    clock_t end;
    srand((unsigned) time(&t));
    struct Pedido pedidos[pedidosNo];
-   int i, g, dur, fd, timeout = 5;
-   double t_dif; 
+   int i, g, dur, fd;
+   double t_dif;
 
    //OPEN FILE
    /*
@@ -40,24 +42,24 @@ void * gerar(void * arg){
       exit(1);
    }
    */
-      
+
 
    //OPEN FIFO
-   for(i = 0; i < 5; i++){
+   for(i = 0; i < TIMEOUT; i++){
      fd = open(entrada, O_WRONLY);
      if(fd == -1)
         usleep(500);
      else
         break;
    }
-   if(i == timeout){
+   if(i == TIMEOUT){
       printf("Gerador: Couldnt open fifo\n");
       exit(1);
    }
 
    int pNo = pedidosNo;
    write(fd,&pNo,sizeof(int));
-     
+
    for(i = 0; i < pedidosNo; i++){
         pedidos[i].id = i;
    	g = rand()%2;
@@ -75,7 +77,7 @@ void * gerar(void * arg){
         pthread_mutex_lock(&file_lock);
         end = clock();
         t_dif = (double) (end-begin)/CLOCKS_PER_SEC;
-        fprintf(f,"%f - %u - %i: %c - %d - %s\n", t_dif, (unsigned int) getpid(), i, pedidos[i].g, dur, "PEDIDO");     
+        fprintf(f,"%f - %u - %i: %c - %d - %s\n", t_dif, (unsigned int) getpid(), i, pedidos[i].g, dur, "PEDIDO");
         pthread_mutex_unlock(&file_lock);
         write(fd,&pedidos[i],sizeof(struct Pedido));
    }
@@ -86,19 +88,19 @@ void * gerar(void * arg){
 
 void *recolocar(void * arg){
    clock_t end;
-   int fd, fd2, i, timeout = 5;
+   int fd, fd2, i;
    double t_dif;
 
 
    //OPEN FIFO ENTRADA
-   for(i = 0; i < 5; i++){
+   for(i = 0; i < TIMEOUT; i++){
      fd2 = open(entrada, O_WRONLY);
      if(fd2 == -1)
         usleep(500);
      else
         break;
    }
-   if(i == timeout){
+   if(i == TIMEOUT){
       printf("Gerador: Couldnt open fifo entrada\n");
       exit(1);
    }
@@ -121,7 +123,7 @@ void *recolocar(void * arg){
       printf("Gerador: Couldnt open file d\n");
       exit(1);
    }
- 
+
    FILE * f = fdopen(ft, "w");
    if(f == NULL){
       printf("Gerador: Couldnt open file\n");
@@ -188,7 +190,7 @@ int main(int argc, char*argv[]){
       printf("Gerador: Couldnt open file d\n");
       exit(1);
    }
- 
+
    f = fdopen(ft, "w");
    if(f == NULL){
       printf("Gerador: Couldnt open file\n");
@@ -200,7 +202,7 @@ int main(int argc, char*argv[]){
    pthread_create(&tid[1],NULL,recolocar,NULL);
    pthread_join(tid[0],NULL);
    pthread_join(tid[1],NULL);
-   fprintf(f,"Gerados: %d(T) - %d(M) - %d(F)\nRejeitados: %d(T) - %d(M) - %d(F)\nDescartados: %d(T) - %d(M) - %d(F)",stats[0]+stats[1],stats[0],stats[1],stats[2]+stats[3],stats[2],stats[3],stats[4]+stats[5],stats[4],stats[5]); 
+   fprintf(f,"Gerados: %d(T) - %d(M) - %d(F)\nRejeitados: %d(T) - %d(M) - %d(F)\nDescartados: %d(T) - %d(M) - %d(F)",stats[0]+stats[1],stats[0],stats[1],stats[2]+stats[3],stats[2],stats[3],stats[4]+stats[5],stats[4],stats[5]);
    fclose(f);
    return 0;
 }
