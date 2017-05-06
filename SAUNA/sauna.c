@@ -28,6 +28,74 @@ clock_t begin;
 pthread_mutex_t file_lock = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t pedidos_lock = PTHREAD_MUTEX_INITIALIZER;
 
+void* open_file_sauna(){
+  void* result;
+  int ft;
+  ft=open(fich, O_WRONLY | O_CREAT | O_TRUNC | O_SYNC, 0600);
+  if(ft == -1){
+    printf("Sauna: Couldnt open file d\n");
+    return NULL;
+  }
+
+  result = fdopen(ft, "w");
+  if(result == NULL){
+    printf("Sauna: Couldnt open file\n");
+    return NULL;
+  }
+  return result;
+
+}
+
+int open_fifo_entrada(){
+  int fd;
+  fd = open(entrada,O_RDONLY);
+  if(fd == -1){
+    printf("Sauna: Couldnt open fifo\n");
+    return -1;
+  }
+  return fd;
+
+}
+
+int create_fifo_entrada(){
+  //MAKE FIFO
+  if(mkfifo(entrada,0660)){
+    printf("Sauna: Couldnt create fifo\n");
+    //exit(1);
+  }
+  return 0;
+
+}
+
+int readPedidosNo(int fd){
+  int pedidosNo;
+  if(read(fd,&pedidosNo,sizeof(int)) == -1){
+    printf("Sauna: Falhou ler pedidos\n");
+    return -1;
+  }
+  return pedidosNo;
+}
+
+int open_fifo_rejeitado(){
+  int i, fd2;
+  //OPEN FIFO
+  for(i = 0; i < TIMEOUT; i++){
+    fd2 = open(rejeitados, O_WRONLY);
+    printf("Ciclo para abrir rejeitados\n");
+
+    if(fd2 == -1)
+    sleep(1);
+    else
+    break;
+  }
+
+  if(i == TIMEOUT){
+    printf("Sauna: Couldnt open fifo\n");
+  return -1;
+  }
+return fd2;
+}
+
 
 void* saunar(void * pedido){
   struct Pedido p = *(struct Pedido *) pedido;
@@ -70,52 +138,30 @@ int main(int argc, char*argv[]){
   sprintf(pid, "%u", (unsigned int) getpid());
   strcat(fich,pid);
 
-  int ft = open(fich, O_WRONLY | O_CREAT | O_TRUNC | O_SYNC, 0600);
-  if(ft == -1){
-    printf("Sauna: Couldnt open file d\n");
-    exit(1);
-  }
+  f = open_file_sauna();
 
-  f = fdopen(ft, "w");
   if(f == NULL){
-    printf("Sauna: Couldnt open file\n");
     exit(1);
   }
 
-  //MAKE FIFO
-  if(mkfifo(entrada,0660)){
-    printf("Sauna: Couldnt create fifo\n");
-    //exit(1);
-  }
 
-  fd = open(entrada,O_RDONLY);
+  create_fifo_entrada();
+
+  fd = open_fifo_entrada();
+
   if(fd == -1){
-    printf("Sauna: Couldnt open fifo\n");
     exit(1);
   }
 
-  int pedidosNo;
-  if(read(fd,&pedidosNo,sizeof(int)) == -1){
-    printf("Sauna: Falhou ler pedidos\n");
+  int pedidosNo = readPedidosNo(fd);
+  if(pedidosNo == -1){
     exit(1);
   }
 
   printf("Sauna: NoPedidos %d\n",pedidosNo);
 
-
-  //OPEN FIFO
-  for(i = 0; i < TIMEOUT; i++){
-    fd2 = open(rejeitados, O_WRONLY);
-    printf("Ciclo para abrir rejeitados\n");
-
-    if(fd2 == -1)
-    sleep(1);
-    else
-    break;
-  }
-
-  if(i == TIMEOUT){
-    printf("Sauna: Couldnt open fifo\n");
+  fd2= open_fifo_rejeitado();
+  if (fd2 == -1){
     exit(1);
   }
 
@@ -142,14 +188,16 @@ int main(int argc, char*argv[]){
     if(pedidos == pedidosMax){
       if(flagEspera == 0){
 
-  
         br = read(fd,&p,sizeof(struct Pedido));
 
+        if(br == -1)
+        exit(1);
 
         if(br==0)
         break;
 
         printMessage(getpid(), pthread_self(),p,RECEBIDO);
+
         if(gender == p.g){
           printf("Sauna: pedido em espera\n");
           *pedidoEspera = p;
@@ -161,9 +209,11 @@ int main(int argc, char*argv[]){
         }
       }
     }
-    else if(pedidos == pedidosMax-1){
+
+    else  if(pedidos == 0){
       if(flagEspera == 1){
         printf("Sauna 1 -  pedidoAtuais: %d, pedidosMax; %d, processados: %d\n",pedidosAtuais,pedidosMax,processados);
+        gender = p.g;
         pedidosAtivos[pedidoEspera->id] = *pedidoEspera;
         tid[tidIndex] = tidIndex;
         pthread_mutex_lock(&pedidos_lock);
@@ -174,36 +224,11 @@ int main(int argc, char*argv[]){
         printMessage(getpid(), tid[tidIndex],p,SERVIDO);
         tidIndex++;
         flagEspera=0;
-        //pedidoEspera = NULL;
-      }
-      else{
-
-        br = read(fd,&p,sizeof(struct Pedido));
-
-        if(br==0)
-        break;
-
-        printMessage(getpid(), pthread_self(),p,RECEBIDO);
-        if(gender == p.g){
-          pedidosAtivos[p.id] = p;
-          tid[tidIndex] = tidIndex;
-          pthread_mutex_lock(&pedidos_lock);
-          pedidosAtuais++;
-          pthread_mutex_unlock(&pedidos_lock);
-          processados++;
-          pthread_create(&tid[tidIndex], NULL, saunar, &pedidosAtivos[p.id]);
-          printMessage(getpid(), tid[tidIndex],p,SERVIDO);
-          tidIndex++;
-        }
-        else{
-          rejectPedido(&p, fd2);
-        }
-      }
-    }
-    else if(pedidos == 0){
-
-
+      } else {
       br = read(fd,&p,sizeof(struct Pedido));
+
+      if(br == -1)
+      exit(1);
 
       if(br==0)
       break;
@@ -219,7 +244,9 @@ int main(int argc, char*argv[]){
       pthread_create(&tid[tidIndex], NULL, saunar, &pedidosAtivos[p.id]);
       printMessage(getpid(), tid[tidIndex],p,SERVIDO);
       tidIndex++;
+
     }
+  }
     else if (pedidos < pedidosMax){
       if(flagEspera == 1){
         printf("Sauna 1 -  pedidoAtuais: %d, pedidosMax; %d, processados: %d\n",pedidosAtuais,pedidosMax,processados);
@@ -270,7 +297,7 @@ int main(int argc, char*argv[]){
       break;
     }
   }
-  //free(pedidoEspera);
+  free(pedidoEspera);
   close(fd);
   printf("Sauna: processados: %d\n", processados);
   pthread_exit(NULL);
