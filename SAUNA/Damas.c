@@ -1,6 +1,3 @@
-olha que o semaforo parece uma boa cena
-a cada request aceite é só dar sem wait, usleep, sem post 🙂
-
 typedef struct {
         int capacity;
         int number_of_requests; //TODO: Initialize
