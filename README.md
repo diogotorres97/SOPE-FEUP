@@ -19,7 +19,7 @@ Após leitura do enunciado o que falta fazer:
 
 -> Na sauna o instante no ficheiro converter para milisegundos e com 2 casas decimais
 
-->Testar (É preciso testar exaustivamente, porque após refactoring não se fiz asneira. Em aleatoriadade so encontrei difrenças acima dos 1000 pedidos, pq os outros ficaram me iguais :) )
+->Testar (É preciso testar exaustivamente :) )
 
 ->E fazer verificaçes de reads, create fifos and so on... com devivo controlo de erros (Acho que esta parte já está, falta verificar os prints dos erros (mistura com portugues e ingles)
 
