@@ -81,10 +81,7 @@ void* open_file_gerador(){
 }
 
 void gerarPedido(struct Pedido pedidos[], int i){
-	time_t t;
-	srand((unsigned) time(&t));
 	int g,dur;
-
 	pedidos[i].id = i;
 	g = rand()%2;
 	if(g){
@@ -109,6 +106,8 @@ void printMessage(pid_t pid, struct Pedido p, unsigned int tip){
 }
 
 void * gerar(void * arg){
+	time_t t;
+	srand((unsigned) time(&t));
 	struct Pedido pedidos[pedidosNo];
 	int i, g, dur, fd,pNo;
 	double t_dif;
