@@ -61,8 +61,8 @@ int create_fifo_entrada(){
 	mode_t permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP; //Read and write for file owner and group owner
 	if(mkfifo("/tmp/entrada",permissions)!=0){
 		if(errno != EEXIST) { //EEXIST would mean that couldn't make FIFO but only because it already exists
-						printf("Sauna: Couldnt create fifo \n");
-						return -1;
+			printf("Sauna: Couldnt create fifo \n");
+			return -1;
 		}
 	}
 	return 0;

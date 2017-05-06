@@ -48,8 +48,8 @@ int create_fifo_rejeitado(){
 	mode_t permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP; //Read and write for file owner and group owner
 	if(mkfifo("/tmp/rejeitados",permissions)!=0){
 		if(errno != EEXIST) { //EEXIST would mean that couldn't make FIFO but only because it already exists
-						printf("Gerador: Couldnt create fifo \n");
-						return -1;
+			printf("Gerador: Couldnt create fifo \n");
+			return -1;
 		}
 	}
 	return 0;
@@ -116,11 +116,11 @@ void * gerar(void * arg){
 	if((fd=open_fifo_entrada())==-1)
 		exit(1);
 
-		pNo = pedidosNo;
-		if(write(fd,&pNo,sizeof(int))==-1){
-			printf("Gerador: Couldnt write pedidosNo\n");
-			exit(1);
-		}
+	pNo = pedidosNo;
+	if(write(fd,&pNo,sizeof(int))==-1){
+		printf("Gerador: Couldnt write pedidosNo\n");
+		exit(1);
+	}
 
 	for(i = 0; i < pedidosNo; i++){
 
@@ -145,15 +145,13 @@ void * gerar(void * arg){
 void *recolocar(void * arg){
 	int fd, fd2;
 
-	if((fd2=open_fifo_entrada())==-1){
+	if((fd2=open_fifo_entrada())==-1)
 		exit(1);
-	}
 
 	create_fifo_rejeitado();
 
-	if((fd=open_fifo_rejeitado())==-1){
+	if((fd=open_fifo_rejeitado())==-1)
 		exit(1);
-	}
 
 	struct Pedido p;
 	int br;
@@ -213,9 +211,8 @@ int main(int argc, char*argv[]){
 	sprintf(pid, "%u", (unsigned int) getpid());
 	strcat(fich,pid);
 
-	if((f = open_file_gerador()) == NULL){
+	if((f = open_file_gerador()) == NULL)
 		exit(1);
-	}
 
 	pthread_t tid[2];
 	pthread_create(&tid[0],NULL,gerar,NULL);
