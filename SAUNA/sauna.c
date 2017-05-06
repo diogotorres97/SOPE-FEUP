@@ -20,33 +20,18 @@ const char * messageTip[] = {"RECEBIDO", "REJEITADO", "SERVIDO"};
 char fich[30] = "bal.";
 int pedidosAtuais = 0;
 int processados = 0;
-//struct Pedido * pedidoEspera = NULL;
+
 FILE * f;
 
 clock_t begin;
 
-/*
-//variaveis que nao precisam de ser globais
-pthread_t tid[pedidosNo];
-unsigned int tidIndex = 0;
-struct Pedido pedidosAtivos[pedidosNo];
-*/
-
 pthread_mutex_t file_lock = PTHREAD_MUTEX_INITIALIZER;
-//pthread_mutex_t processados_lock = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t pedidos_lock = PTHREAD_MUTEX_INITIALIZER;
 
 
 void* saunar(void * pedido){
   struct Pedido p = *(struct Pedido *) pedido;
-  //printf("Pedido - id: %d, gender; %c, time: %d\n",p.id,p.g,p.time);
 
-  /*
-  pthread_mutex_lock(&processados_lock);
-  printf("Sauna: Thread processados++\n");
-  processados++;
-  pthread_mutex_unlock(&processados_lock);
-  */
   usleep(p.time);
 
   pthread_mutex_lock(&pedidos_lock);
@@ -57,20 +42,6 @@ void* saunar(void * pedido){
 
   return NULL;
 }
-
-
-/*
-void processPedido(struct Pedido p){
-pedidosAtivos[p.id] = p;
-tid[tidIndex] = tidIndex;
-pthread_mutex_lock(&pedidos_lock);
-pedidosAtuais++;
-pthread_mutex_unlock(&pedidos_lock);
-processados++;
-pthread_create(&tid[tidIndex], NULL, saunar, &pedidosAtivos[p.id]);
-tidIndex++;
-}
-*/
 
 void printMessage(pid_t pid, pthread_t tid, struct Pedido p, unsigned int tip){
   clock_t end;
@@ -148,7 +119,6 @@ int main(int argc, char*argv[]){
     exit(1);
   }
 
-  //printf("Sauna: Chegou aqui\n");
   char gender;
   int pedidosMax = atoi(argv[1]);
   pthread_t tid[pedidosNo];
@@ -163,7 +133,7 @@ int main(int argc, char*argv[]){
   int pedidos;
 
   while(1){
-    
+
     pthread_mutex_lock(&pedidos_lock);
     pedidos= pedidosAtuais;
     pthread_mutex_unlock(&pedidos_lock);
@@ -171,12 +141,13 @@ int main(int argc, char*argv[]){
 
     if(pedidos == pedidosMax){
       if(flagEspera == 0){
-  //      printf("wait1\n");
+
+  
         br = read(fd,&p,sizeof(struct Pedido));
-    //    printf("wait1\n");
+
+
         if(br==0)
         break;
-        //printf("Sauna: br - %d\n", br);
 
         printMessage(getpid(), pthread_self(),p,RECEBIDO);
         if(gender == p.g){
@@ -206,12 +177,12 @@ int main(int argc, char*argv[]){
         //pedidoEspera = NULL;
       }
       else{
-  //      printf("wait2\n");
+
         br = read(fd,&p,sizeof(struct Pedido));
-//printf("wait2\n");
+
         if(br==0)
         break;
-        //printf("Sauna: br - %d\n", br);
+
         printMessage(getpid(), pthread_self(),p,RECEBIDO);
         if(gender == p.g){
           pedidosAtivos[p.id] = p;
@@ -231,12 +202,12 @@ int main(int argc, char*argv[]){
     }
     else if(pedidos == 0){
 
-      //printf("wait3\n");
+
       br = read(fd,&p,sizeof(struct Pedido));
-//printf("wait3\n");
+
       if(br==0)
       break;
-      //printf("Sauna: br - %d\n", br);
+
       printMessage(getpid(), pthread_self(),p,RECEBIDO);
       gender = p.g;
       pedidosAtivos[p.id] = p;
@@ -265,17 +236,14 @@ int main(int argc, char*argv[]){
         //pedidoEspera = NULL;
       }
       else{
-      //printf("Sauna: Before read\n");
-    //  printf("wait4\n");
-      //printf("%d \n", pedidos);
-      //printf("%d \n", processados);
-        //printf("%d \n", tidIndex);
+
+
       br = read(fd,&p,sizeof(struct Pedido));
-      //printf("wait4\n");
+
       if(br==0)
       break;
-      //printf("Sauna: After read\n");
-      //printf("Sauna: br - %d\n", br);
+
+
       printMessage(getpid(), pthread_self(),p,RECEBIDO);
       if(gender == p.g){
         pedidosAtivos[p.id] = p;
