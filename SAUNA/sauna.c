@@ -29,97 +29,21 @@ clock_t begin;
 pthread_mutex_t file_lock = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t pedidos_lock = PTHREAD_MUTEX_INITIALIZER;
 
-void* open_file_sauna(){
-	void* result;
-	int ft;
+void* open_file_sauna();
 
-	if((ft=open(fich, O_WRONLY | O_CREAT | O_TRUNC | O_SYNC, 0600)) == -1){
-		printf("%s \n",fich);
-		printf("Sauna: Couldnt open file\n");
-		return NULL;
-	}
+int open_fifo_entrada();
 
-	if((result = fdopen(ft, "w")) == NULL){
-		printf("Sauna: Couldnt open file\n");
-		return NULL;
-	}
-	return result;
-}
+int create_fifo_entrada();
 
-int open_fifo_entrada(){
-	int fd;
+int readPedidosNo(int fd);
 
-	if((fd = open("/tmp/entrada",O_RDONLY)) == -1){
-		printf("Sauna: Couldnt open fifo\n");
-		return -1;
-	}
-	return fd;
-}
+int open_fifo_rejeitado();
 
-int create_fifo_entrada(){
+void* saunar(void * pedido);
 
-	mode_t permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP; //Read and write for file owner and group owner
-	if(mkfifo("/tmp/entrada",permissions)!=0){
-		if(errno != EEXIST) { //EEXIST would mean that couldn't make FIFO but only because it already exists
-			printf("Sauna: Couldnt create fifo \n");
-			return -1;
-		}
-	}
-	return 0;
-}
+void printMessage(pid_t pid, pthread_t tid, struct Pedido p, unsigned int tip);
 
-int readPedidosNo(int fd){
-	int pedidosNo;
-	if(read(fd,&pedidosNo,sizeof(int)) == -1){
-		printf("Sauna: Falhou ler pedidos\n");
-		return -1;
-	}
-	return pedidosNo;
-}
-
-int open_fifo_rejeitado(){
-	int i, fd2;
-	for(i = 0; i < TIMEOUT; i++){
-		if((fd2 = open("/tmp/rejeitados", O_WRONLY)) == -1)
-			sleep(1);
-		else
-			break;
-	}
-
-	if(i == TIMEOUT){
-		printf("Sauna: Couldnt open fifo\n");
-		return -1;
-	}
-	return fd2;
-}
-
-
-void* saunar(void * pedido){
-	struct Pedido p = *(struct Pedido *) pedido;
-
-	usleep(p.time);
-
-	pthread_mutex_lock(&pedidos_lock);
-	pedidosAtuais--;
-	pthread_mutex_unlock(&pedidos_lock);
-
-	return NULL;
-}
-
-void printMessage(pid_t pid, pthread_t tid, struct Pedido p, unsigned int tip){
-	clock_t end;
-	double t_dif;
-	end = clock();
-	t_dif = (double) (end-begin)/CLOCKS_PER_SEC;
-	fprintf(f,"%f - %u - %u - %i: %c - %d - %s\n", t_dif, (unsigned int) pid, (unsigned int) tid, p.id, p.g, p.time, messageTip[tip]);
-}
-
-void rejectPedido(struct Pedido * p, int fd){
-	write(fd, p, sizeof(struct Pedido));
-	if(p->rNo == 2)
-		processados++;
-	printMessage(getpid(), pthread_self(),*p,REJEITADO);
-}
+void rejectPedido(struct Pedido * p, int fd);
 
 int main(int argc, char*argv[]){
 	if(argc != 2)
@@ -275,4 +199,96 @@ int main(int argc, char*argv[]){
 	//fclose(f);
 
 	return 0;
+}
+
+void* open_file_sauna(){
+	void* result;
+	int ft;
+
+	if((ft=open(fich, O_WRONLY | O_CREAT | O_TRUNC | O_SYNC, 0600)) == -1){
+		printf("%s \n",fich);
+		printf("Sauna: Couldnt open file\n");
+		return NULL;
+	}
+
+	if((result = fdopen(ft, "w")) == NULL){
+		printf("Sauna: Couldnt open file\n");
+		return NULL;
+	}
+	return result;
+}
+
+int open_fifo_entrada(){
+	int fd;
+
+	if((fd = open("/tmp/entrada",O_RDONLY)) == -1){
+		printf("Sauna: Couldnt open fifo\n");
+		return -1;
+	}
+	return fd;
+}
+
+int create_fifo_entrada(){
+
+	mode_t permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP; //Read and write for file owner and group owner
+	if(mkfifo("/tmp/entrada",permissions)!=0){
+		if(errno != EEXIST) { //EEXIST would mean that couldn't make FIFO but only because it already exists
+			printf("Sauna: Couldnt create fifo \n");
+			return -1;
+		}
+	}
+	return 0;
+}
+
+int readPedidosNo(int fd){
+	int pedidosNo;
+	if(read(fd,&pedidosNo,sizeof(int)) == -1){
+		printf("Sauna: Falhou ler pedidos\n");
+		return -1;
+	}
+	return pedidosNo;
+}
+
+int open_fifo_rejeitado(){
+	int i, fd2;
+	for(i = 0; i < TIMEOUT; i++){
+		if((fd2 = open("/tmp/rejeitados", O_WRONLY)) == -1)
+			sleep(1);
+		else
+			break;
+	}
+
+	if(i == TIMEOUT){
+		printf("Sauna: Couldnt open fifo\n");
+		return -1;
+	}
+	return fd2;
+}
+
+
+void* saunar(void * pedido){
+	struct Pedido p = *(struct Pedido *) pedido;
+
+	usleep(p.time);
+
+	pthread_mutex_lock(&pedidos_lock);
+	pedidosAtuais--;
+	pthread_mutex_unlock(&pedidos_lock);
+
+	return NULL;
+}
+
+void printMessage(pid_t pid, pthread_t tid, struct Pedido p, unsigned int tip){
+	clock_t end;
+	double t_dif;
+	end = clock();
+	t_dif = (double) (end-begin)/CLOCKS_PER_SEC;
+	fprintf(f,"%f - %u - %u - %i: %c - %d - %s\n", t_dif, (unsigned int) pid, (unsigned int) tid, p.id, p.g, p.time, messageTip[tip]);
+}
+
+void rejectPedido(struct Pedido * p, int fd){
+	write(fd, p, sizeof(struct Pedido));
+	if(p->rNo == 2)
+		processados++;
+	printMessage(getpid(), pthread_self(),*p,REJEITADO);
 }

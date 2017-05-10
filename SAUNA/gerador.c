@@ -28,6 +28,47 @@ pthread_mutex_t file_lock = PTHREAD_MUTEX_INITIALIZER;
 
 FILE * f;
 
+int open_fifo_entrada();
+
+int create_fifo_rejeitado();
+
+int open_fifo_rejeitado();
+
+void* open_file_gerador();
+
+void gerarPedido(struct Pedido pedidos[], int i);
+
+void printMessage(pid_t pid, struct Pedido p, unsigned int tip);
+
+void * gerar(void * arg);
+
+void *recolocar(void * arg);
+
+int main(int argc, char*argv[]){
+	if(argc != 3)
+		return -1;
+
+	begin = clock();                //COMECAR A CONTAR O TEMPO
+	pedidosNo = atoi(argv[1]);
+	tempoMax = atoi(argv[2]);
+
+	char pid[20];
+	sprintf(pid, "%u", (unsigned int) getpid());
+	strcat(fich,pid);
+
+	if((f = open_file_gerador()) == NULL)
+		exit(1);
+
+	pthread_t tid[2];
+	pthread_create(&tid[0],NULL,gerar,NULL);
+	pthread_create(&tid[1],NULL,recolocar,NULL);
+	pthread_join(tid[0],NULL);
+	pthread_join(tid[1],NULL);
+	fprintf(f,"Gerados: %d(T) - %d(M) - %d(F)\nRejeitados: %d(T) - %d(M) - %d(F)\nDescartados: %d(T) - %d(M) - %d(F)",stats[0]+stats[1],stats[0],stats[1],stats[2]+stats[3],stats[2],stats[3],stats[4]+stats[5],stats[4],stats[5]);
+	fclose(f);
+	return 0;
+}
+
 int open_fifo_entrada(){
 	int fd,i;
 	for(i = 0; i < TIMEOUT; i++){
@@ -195,30 +236,4 @@ void *recolocar(void * arg){
 	close(fd2);
 	close(fd);
 	return NULL;
-}
-
-
-int main(int argc, char*argv[]){
-	if(argc != 3)
-		return -1;
-
-	begin = clock();                //COMECAR A CONTAR O TEMPO
-	pedidosNo = atoi(argv[1]);
-	tempoMax = atoi(argv[2]);
-
-	char pid[20];
-	sprintf(pid, "%u", (unsigned int) getpid());
-	strcat(fich,pid);
-
-	if((f = open_file_gerador()) == NULL)
-		exit(1);
-
-	pthread_t tid[2];
-	pthread_create(&tid[0],NULL,gerar,NULL);
-	pthread_create(&tid[1],NULL,recolocar,NULL);
-	pthread_join(tid[0],NULL);
-	pthread_join(tid[1],NULL);
-	fprintf(f,"Gerados: %d(T) - %d(M) - %d(F)\nRejeitados: %d(T) - %d(M) - %d(F)\nDescartados: %d(T) - %d(M) - %d(F)",stats[0]+stats[1],stats[0],stats[1],stats[2]+stats[3],stats[2],stats[3],stats[4]+stats[5],stats[4],stats[5]);
-	fclose(f);
-	return 0;
 }
