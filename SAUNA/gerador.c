@@ -142,8 +142,8 @@ void printMessage(pid_t pid, struct Pedido p, unsigned int tip){
 	clock_t end;
 	double t_dif;
 	end = clock();
-	t_dif = (double) (end-begin)/CLOCKS_PER_SEC;
-	fprintf(f,"%f - %u - %i: %c - %d - %s\n", t_dif, (unsigned int) pid, p.id, p.g, p.time, messageTip[tip]);
+	t_dif = (double) (end-begin) / CLOCKS_PER_SEC * 1000;
+	fprintf(f,"%.2f - %u - %i: %c - %d - %s\n", t_dif, (unsigned int) pid, p.id, p.g, p.time, messageTip[tip]);
 }
 
 void * gerar(void * arg){
@@ -157,6 +157,7 @@ void * gerar(void * arg){
 		exit(1);
 
 	pNo = pedidosNo;
+
 	if(write(fd,&pNo,sizeof(int))==-1){
 		printf("Gerador: Couldnt write pedidosNo\n");
 		exit(1);

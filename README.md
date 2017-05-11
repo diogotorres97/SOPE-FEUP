@@ -11,17 +11,17 @@ Após leitura do enunciado o que falta fazer:
  
 ->No gerador passar o fifo para /tmp/entrada, /tmp/rejeitados e /tmp/ger.pid (done)
 
-->No gerador o instante no ficheiro converter para milisegundos e com 2 casas decimais
+->No gerador o instante no ficheiro converter para milisegundos e com 2 casas decimais (donezies)
 
 ->Na sauna passar o fifo para /tmp/entrada, /tmp/rejeitados e /tmp/bal.pid (done)
 
--> Na sauna imprimir as estatisticas no final do ficheiro
+-> Na sauna imprimir as estatisticas no final do ficheiro (donezies)
 
--> Na sauna o instante no ficheiro converter para milisegundos e com 2 casas decimais
+-> Na sauna o instante no ficheiro converter para milisegundos e com 2 casas decimais (donezies)
 
 ->Testar (É preciso testar exaustivamente :) )
 
-->E fazer verificaçes de reads, create fifos and so on... com devivo controlo de erros (Acho que esta parte já está, falta verificar os prints dos erros (mistura com portugues e ingles)
+->E fazer verificaçes de reads, create fifos and so on... com devivo controlo de erros (Acho que esta parte já está, falta verificar os prints dos erros (mistura com portugues e ingles) (donezies, mas deve faltar editar isto para não ficar inglês e português. Metemos tudo em inglês?)
 
 Depois a parte:
 
