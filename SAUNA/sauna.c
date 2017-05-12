@@ -194,15 +194,15 @@ int main(int argc, char*argv[]){
 	free(pedidoEspera);
 	close(fd);
 	printf("Sauna: processados: %d\n", processados);
-	
+
 	printf("Recebidos: %d(T) - %d(M) - %d(F)\nRejeitados: %d(T) - %d(M) - %d(F)\nServidos: %d(T) - %d(M) - %d(F)",stats[0]+stats[1],stats[0],stats[1],stats[2]+stats[3],stats[2],stats[3],stats[4]+stats[5],stats[4],stats[5]);
-	
+
 	fprintf(f,"Recebidos: %d(T) - %d(M) - %d(F)\nRejeitados: %d(T) - %d(M) - %d(F)\nServidos: %d(T) - %d(M) - %d(F)",stats[0]+stats[1],stats[0],stats[1],stats[2]+stats[3],stats[2],stats[3],stats[4]+stats[5],stats[4],stats[5]);
-	
+
 	fclose(f);
 
 	pthread_exit(NULL);
-	
+
 	return 0;
 }
 
@@ -310,7 +310,7 @@ void printMessage(pid_t pid, pthread_t tid, struct Pedido p, unsigned int tip){
 	}
 
 	printf("Recebidos: %d(T) - %d(M) - %d(F)\nRejeitados: %d(T) - %d(M) - %d(F)\nServidos: %d(T) - %d(M) - %d(F)",stats[0]+stats[1],stats[0],stats[1],stats[2]+stats[3],stats[2],stats[3],stats[4]+stats[5],stats[4],stats[5]);
-	
+
 
 }
 
