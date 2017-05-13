@@ -7,6 +7,8 @@ Grupo 2 Turma 5
 
 Após leitura do enunciado o que falta fazer:
 
+-> "%-10.02f - %6d  %-5d: %-3c - %-5d - %-12s\n" meter isto nos printf para imprimir tabelado 
+
 ->Refactoring total :D ( Ja comecei e acho que já está com grandes progressos)
  
 ->No gerador passar o fifo para /tmp/entrada, /tmp/rejeitados e /tmp/ger.pid (done)
