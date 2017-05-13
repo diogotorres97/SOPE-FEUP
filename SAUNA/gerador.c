@@ -24,7 +24,7 @@ int tempoMax;
 int stats[6];   //Statistics counters
 
 clock_t begin;
-pthread_mutex_t file_lock = PTHREAD_MUTEX_INITIALIZER;
+//pthread_mutex_t file_lock = PTHREAD_MUTEX_INITIALIZER;
 
 FILE * f;
 
@@ -167,9 +167,9 @@ void * gerar(void * arg){
 
 		gerarPedido(pedidos, i);
 
-		pthread_mutex_lock(&file_lock);
+		//pthread_mutex_lock(&file_lock);
 		printMessage(getpid(),pedidos[i],PEDIDO);
-		pthread_mutex_unlock(&file_lock);
+		//pthread_mutex_unlock(&file_lock);
 
 		if(write(fd,&pedidos[i],sizeof(struct Pedido))==-1){
 			printf("Gerador: Couldnt write pedidos\n");
@@ -218,9 +218,9 @@ void *recolocar(void * arg){
 			else
 				stats[3]++;     //AUMENTA REJEITADOS F
 
-			pthread_mutex_lock(&file_lock);
+			//pthread_mutex_lock(&file_lock);
 			printMessage(getpid(), p,REJEITADO);
-			pthread_mutex_unlock(&file_lock);
+			//pthread_mutex_unlock(&file_lock);
 		}
 		else{
 			if(p.g == 'M')    //AUMENTA DESCARTADOS M
@@ -228,9 +228,9 @@ void *recolocar(void * arg){
 			else
 				stats[5]++;     //AUMENTA DESCARTADOS F
 
-			pthread_mutex_lock(&file_lock);
+			//pthread_mutex_lock(&file_lock);
 			printMessage(getpid(),p,DESCARTADO);
-			pthread_mutex_unlock(&file_lock);
+			//pthread_mutex_unlock(&file_lock);
 		}
 	}
 

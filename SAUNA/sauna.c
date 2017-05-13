@@ -53,7 +53,7 @@ int main(int argc, char*argv[]){
 
 	begin = clock();     //start counting time
 
-	int fd, fd2, i, pedidosNo;
+	int fd, fd2, pedidosNo;
 
 	char pid[20];
 	sprintf(pid, "%u", (unsigned int) getpid());
@@ -121,7 +121,6 @@ int main(int argc, char*argv[]){
 				pthread_mutex_unlock(&pedidos_lock);
 				processados++;
 				pthread_create(&tid[tidIndex], NULL, saunar, &pedidosAtivos[pedidoEspera->id]);
-				printMessage(getpid(), tid[tidIndex],p,SERVIDO);
 				tidIndex++;
 				flagEspera=0;
 			} else {
@@ -143,7 +142,6 @@ int main(int argc, char*argv[]){
 				pthread_mutex_unlock(&pedidos_lock);
 				processados++;
 				pthread_create(&tid[tidIndex], NULL, saunar, &pedidosAtivos[p.id]);
-				printMessage(getpid(), tid[tidIndex],p,SERVIDO);
 				tidIndex++;
 			}
 		}
@@ -156,7 +154,6 @@ int main(int argc, char*argv[]){
 				pthread_mutex_unlock(&pedidos_lock);
 				processados++;
 				pthread_create(&tid[tidIndex], NULL, saunar, &pedidosAtivos[pedidoEspera->id]);
-				printMessage(getpid(), tid[tidIndex],p,SERVIDO);
 				tidIndex++;
 				flagEspera=0;
 			}
@@ -178,7 +175,6 @@ int main(int argc, char*argv[]){
 					pthread_mutex_unlock(&pedidos_lock);
 					processados++;
 					pthread_create(&tid[tidIndex], NULL, saunar, &pedidosAtivos[p.id]);
-					printMessage(getpid(), tid[tidIndex],p,SERVIDO);
 					tidIndex++;
 				}
 				else{
@@ -195,10 +191,13 @@ int main(int argc, char*argv[]){
 	free(pedidoEspera);
 	close(fd);
 
+	unsigned int i;
+	for(i = 0; i < tidIndex; i++){
+		pthread_join(tid[i], NULL);
+	}
+
 	fprintf(f,"Recebidos: %04d(T) - %04d(M) - %04d(F)\nRejeitados: %04d(T) - %04d(M) - %04d(F)\nServidos: %04d(T) - %04d(M) - %04d(F)",stats[0]+stats[1],stats[0],stats[1],stats[2]+stats[3],stats[2],stats[3],stats[4]+stats[5],stats[4],stats[5]);
 	fclose(f);
-
-	pthread_exit(NULL);
 
 	return 0;
 }
@@ -271,11 +270,15 @@ int open_fifo_rejeitado(){
 void* saunar(void * pedido){
 	struct Pedido p = *(struct Pedido *) pedido;
 
-	usleep(p.time);
+	usleep(p.time*1000);
 
 	pthread_mutex_lock(&pedidos_lock);
 	pedidosAtuais--;
 	pthread_mutex_unlock(&pedidos_lock);
+
+	pthread_mutex_lock(&file_lock);
+	printMessage(getpid(), pthread_self(),p,SERVIDO);
+	pthread_mutex_unlock(&file_lock);
 
 	return NULL;
 }
