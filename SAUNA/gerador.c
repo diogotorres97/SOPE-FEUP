@@ -21,7 +21,7 @@ const char * messageTip[] = {"PEDIDO", "REJEITADO", "DESCARTADO"};
 char fich[30] = "/tmp/ger.";
 int pedidosNo;
 int tempoMax;
-int stats[6];   //CONTADORES PARA ESTATISTICA
+int stats[6];   //Statistics counters
 
 clock_t begin;
 pthread_mutex_t file_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -48,7 +48,7 @@ int main(int argc, char*argv[]){
 	if(argc != 3)
 		return -1;
 
-	begin = clock();                //COMECAR A CONTAR O TEMPO
+	begin = clock();                //Start counting time
 	pedidosNo = atoi(argv[1]);
 	tempoMax = atoi(argv[2]);
 
@@ -142,7 +142,7 @@ void printMessage(pid_t pid, struct Pedido p, unsigned int tip){
 	clock_t end;
 	double t_dif;
 	end = clock();
-	t_dif = (double) (end-begin) / CLOCKS_PER_SEC * 1000;
+	t_dif = ((double) (end-begin) / CLOCKS_PER_SEC) * 1000;
 	fprintf(f,"%.2f - %u - %i: %c - %d - %s\n", t_dif, (unsigned int) pid, p.id, p.g, p.time, messageTip[tip]);
 }
 

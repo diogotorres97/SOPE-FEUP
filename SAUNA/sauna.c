@@ -193,12 +193,8 @@ int main(int argc, char*argv[]){
 	}
 	free(pedidoEspera);
 	close(fd);
-	printf("Sauna: processados: %d\n", processados);
-
-	printf("Recebidos: %d(T) - %d(M) - %d(F)\nRejeitados: %d(T) - %d(M) - %d(F)\nServidos: %d(T) - %d(M) - %d(F)",stats[0]+stats[1],stats[0],stats[1],stats[2]+stats[3],stats[2],stats[3],stats[4]+stats[5],stats[4],stats[5]);
 
 	fprintf(f,"Recebidos: %d(T) - %d(M) - %d(F)\nRejeitados: %d(T) - %d(M) - %d(F)\nServidos: %d(T) - %d(M) - %d(F)",stats[0]+stats[1],stats[0],stats[1],stats[2]+stats[3],stats[2],stats[3],stats[4]+stats[5],stats[4],stats[5]);
-
 	fclose(f);
 
 	pthread_exit(NULL);
@@ -287,9 +283,9 @@ void printMessage(pid_t pid, pthread_t tid, struct Pedido p, unsigned int tip){
 	clock_t end;
 	double t_dif;
 	end = clock();
-	t_dif = (double) (end-begin) / CLOCKS_PER_SEC * 1000;
+	t_dif = ((double) (end-begin) / CLOCKS_PER_SEC) * 1000;
 	fprintf(f,"%.2f - %u - %u - %i: %c - %d - %s\n", t_dif, (unsigned int) pid, (unsigned int) tid, p.id, p.g, p.time, messageTip[tip]);
-	printf("\nGEN: %c\nTIP: %d\n", p.g, tip);
+
 	if (tip == 0) {
 		if (p.g == 'M')
 			stats[0]++;
@@ -308,10 +304,6 @@ void printMessage(pid_t pid, pthread_t tid, struct Pedido p, unsigned int tip){
 		else if (p.g == 'F')
 			stats[5]++;
 	}
-
-	printf("Recebidos: %d(T) - %d(M) - %d(F)\nRejeitados: %d(T) - %d(M) - %d(F)\nServidos: %d(T) - %d(M) - %d(F)",stats[0]+stats[1],stats[0],stats[1],stats[2]+stats[3],stats[2],stats[3],stats[4]+stats[5],stats[4],stats[5]);
-
-
 }
 
 void rejectPedido(struct Pedido * p, int fd){
