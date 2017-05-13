@@ -64,7 +64,7 @@ int main(int argc, char*argv[]){
 	pthread_create(&tid[1],NULL,recolocar,NULL);
 	pthread_join(tid[0],NULL);
 	pthread_join(tid[1],NULL);
-	fprintf(f,"Gerados: %d(T) - %d(M) - %d(F)\nRejeitados: %d(T) - %d(M) - %d(F)\nDescartados: %d(T) - %d(M) - %d(F)",stats[0]+stats[1],stats[0],stats[1],stats[2]+stats[3],stats[2],stats[3],stats[4]+stats[5],stats[4],stats[5]);
+	fprintf(f,"Gerados: %04d(T) - %04d(M) - %04d(F)\nRejeitados: %04d(T) - %04d(M) - %04d(F)\nDescartados: %04d(T) - %04d(M) - %04d(F)",stats[0]+stats[1],stats[0],stats[1],stats[2]+stats[3],stats[2],stats[3],stats[4]+stats[5],stats[4],stats[5]);
 	fclose(f);
 	return 0;
 }
@@ -143,7 +143,7 @@ void printMessage(pid_t pid, struct Pedido p, unsigned int tip){
 	double t_dif;
 	end = clock();
 	t_dif = ((double) (end-begin) / CLOCKS_PER_SEC) * 1000;
-	fprintf(f,"%.2f - %u - %i: %c - %d - %s\n", t_dif, (unsigned int) pid, p.id, p.g, p.time, messageTip[tip]);
+	fprintf(f,"%.2f - %u - %04i: %c - %05d - %s\n", t_dif, (unsigned int) pid, p.id, p.g, p.time, messageTip[tip]);
 }
 
 void * gerar(void * arg){

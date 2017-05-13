@@ -24,6 +24,7 @@ unsigned int processados = 0;
 unsigned int stats[6];
 
 FILE * f;
+FILE * ex;
 
 clock_t begin;
 
@@ -194,7 +195,7 @@ int main(int argc, char*argv[]){
 	free(pedidoEspera);
 	close(fd);
 
-	fprintf(f,"Recebidos: %d(T) - %d(M) - %d(F)\nRejeitados: %d(T) - %d(M) - %d(F)\nServidos: %d(T) - %d(M) - %d(F)",stats[0]+stats[1],stats[0],stats[1],stats[2]+stats[3],stats[2],stats[3],stats[4]+stats[5],stats[4],stats[5]);
+	fprintf(f,"Recebidos: %04d(T) - %04d(M) - %04d(F)\nRejeitados: %04d(T) - %04d(M) - %04d(F)\nServidos: %04d(T) - %04d(M) - %04d(F)",stats[0]+stats[1],stats[0],stats[1],stats[2]+stats[3],stats[2],stats[3],stats[4]+stats[5],stats[4],stats[5]);
 	fclose(f);
 
 	pthread_exit(NULL);
@@ -284,7 +285,7 @@ void printMessage(pid_t pid, pthread_t tid, struct Pedido p, unsigned int tip){
 	double t_dif;
 	end = clock();
 	t_dif = ((double) (end-begin) / CLOCKS_PER_SEC) * 1000;
-	fprintf(f,"%.2f - %u - %u - %i: %c - %d - %s\n", t_dif, (unsigned int) pid, (unsigned int) tid, p.id, p.g, p.time, messageTip[tip]);
+	fprintf(f,"%.2f - %u - %u - %04i: %c - %05d - %s\n", t_dif, (unsigned int) pid, (unsigned int) tid, p.id, p.g, p.time, messageTip[tip]);
 
 	if (tip == 0) {
 		if (p.g == 'M')
