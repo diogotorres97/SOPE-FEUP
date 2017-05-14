@@ -53,13 +53,6 @@ int main(int argc, char*argv[]){
 	if(argc != 2)
 		return 1;
 
-	/*
-	if(clock_gettime(CLOCK_REALTIME, &begin)){    //start counting time
-		printf("Couldnt read correct time\n");
-		exit(1);
-	}
-	 */
-
 	int fd, fd2, pedidosNo;
 
 	char pid[20];

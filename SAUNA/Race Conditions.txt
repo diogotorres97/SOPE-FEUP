@@ -1,0 +1,13 @@
+Elementos do Grupo:
+Bruno André de Oliveira Vale Marques Fernandes – up200707284
+Bruno Manuel Nascimento Costa Galvinas Piedade – up201505668
+Diogo Luis Rey Torres – up201506428
+
+Para sincronizar o acesso a variáveis partilhadas foram utilizados apenas semáforos (mutexes):
+
+Para o Gerador:
+Um mutex (file_lock) que controla os acessos à escrita no ficheiro de saída que poderá ser acedido em paralelo pelas duas threads gerar e recolocar.
+
+Para a Sauna:
+Um mutex (pedidos_lock) que controla os acessos à variável pedidosAtuais que contém o número de pedidos que estão a ser processados num dado instante. Esta variável pode ser acedida em paralelo pela thread principal para a incrementar assim como pelas restantes threads para a decrementar assim que o pedido seja processado. 
+Um outro mutex (file_lock) que controla os acessos à escrita no ficheiro de saída e variáveis de estatística que poderão ser acedidas em paralelo pela thread principal e pelas restantes.
