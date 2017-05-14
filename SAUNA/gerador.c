@@ -134,7 +134,7 @@ void* open_file_gerador(){
 	void* result;
 	int ft;
 
-	if((ft=open(fich, O_WRONLY | O_CREAT | O_TRUNC | O_SYNC, 0600)) == -1){
+	if((ft=open(fich, O_WRONLY | O_CREAT | O_TRUNC, 0600)) == -1){
 		printf("Gerador: Couldnt open file d\n");
 		return NULL;
 	}
@@ -199,9 +199,9 @@ void * gerar(void * arg){
 
 		gerarPedido(pedidos, i);
 
-		//pthread_mutex_lock(&file_lock);
+		// pthread_mutex_lock(&file_lock);
 		printMessage(getpid(),pedidos[i],PEDIDO);
-		//pthread_mutex_unlock(&file_lock);
+		// pthread_mutex_unlock(&file_lock);
 
 		if(write(fd,&pedidos[i],sizeof(struct Pedido))==-1){
 			printf("Gerador: Couldnt write pedidos\n");
@@ -251,9 +251,9 @@ void *recolocar(void * arg){
 			else
 				stats[3]++;     //AUMENTA REJEITADOS F
 
-			//pthread_mutex_lock(&file_lock);
+			// pthread_mutex_lock(&file_lock);
 			printMessage(getpid(), p,REJEITADO);
-			//pthread_mutex_unlock(&file_lock);
+			// pthread_mutex_unlock(&file_lock);
 		}
 		else{
 			if(p.g == 'M')    //AUMENTA DESCARTADOS M
@@ -261,9 +261,9 @@ void *recolocar(void * arg){
 			else
 				stats[5]++;     //AUMENTA DESCARTADOS F
 
-			//pthread_mutex_lock(&file_lock);
+			// pthread_mutex_lock(&file_lock);
 			printMessage(getpid(),p,DESCARTADO);
-			//pthread_mutex_unlock(&file_lock);
+			// pthread_mutex_unlock(&file_lock);
 		}
 	}
 

@@ -58,7 +58,7 @@ int main(int argc, char*argv[]){
 		printf("Couldnt read correct time\n");
 		exit(1);
 	}
-	*/
+	 */
 
 	int fd, fd2, pedidosNo;
 
@@ -219,7 +219,7 @@ void* open_file_sauna(){
 	void* result;
 	int ft;
 
-	if((ft=open(fich, O_WRONLY | O_CREAT | O_TRUNC | O_SYNC, 0600)) == -1){
+	if((ft=open(fich, O_WRONLY | O_CREAT | O_TRUNC, 0600)) == -1){
 		printf("%s \n",fich);
 		printf("Sauna: Couldnt open file\n");
 		return NULL;
