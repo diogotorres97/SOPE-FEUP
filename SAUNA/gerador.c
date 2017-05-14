@@ -171,6 +171,11 @@ void * gerar(void * arg){
 		exit(1);
 	}
 
+	if(write(fd,&begin, sizeof(struct timespec)) == -1){
+		printf("Gerador: Couldnt write time\n");
+		exit(1);
+	}
+
 	for(i = 0; i < pedidosNo; i++){
 
 		gerarPedido(pedidos, i);

@@ -52,10 +52,12 @@ int main(int argc, char*argv[]){
 	if(argc != 2)
 		return 1;
 
+	/*
 	if(clock_gettime(CLOCK_REALTIME, &begin)){    //start counting time
 		printf("Couldnt read correct time\n");
 		exit(1);
 	}
+	*/
 
 	int fd, fd2, pedidosNo;
 
@@ -76,6 +78,11 @@ int main(int argc, char*argv[]){
 
 	if ((fd2= open_fifo_rejeitado()) == -1)
 		exit(1);
+
+	if(read(fd,&begin,sizeof(struct timespec)) == -1){
+		printf("Sauna: Falhou ler time\n");
+		exit(1);
+	}
 
 	char gender;
 	int pedidosMax = atoi(argv[1]);
