@@ -24,7 +24,6 @@ unsigned int processados = 0;
 unsigned int stats[6];
 
 FILE * f;
-FILE * ex;
 
 //clock_t begin;
 struct timespec begin;
@@ -41,6 +40,8 @@ int create_fifo_entrada();
 int readPedidosNo(int fd);
 
 int open_fifo_rejeitado();
+
+int read_real_time_fifo(int fd);
 
 void* saunar(void * pedido);
 
@@ -68,7 +69,8 @@ int main(int argc, char*argv[]){
 	if((f = open_file_sauna()) == NULL)
 		exit(1);
 
-	create_fifo_entrada();
+	if(create_fifo_entrada()==-1)
+		exit(1);
 
 	if((fd = open_fifo_entrada()) == -1)
 		exit(1);
@@ -79,10 +81,8 @@ int main(int argc, char*argv[]){
 	if ((fd2= open_fifo_rejeitado()) == -1)
 		exit(1);
 
-	if(read(fd,&begin,sizeof(struct timespec)) == -1){
-		printf("Sauna: Falhou ler time\n");
+	if(read_real_time_fifo(fd)==-1)
 		exit(1);
-	}
 
 	char gender;
 	int pedidosMax = atoi(argv[1]);
@@ -210,6 +210,8 @@ int main(int argc, char*argv[]){
 	fprintf(f,"Recebidos: %04d(T) - %04d(M) - %04d(F)\nRejeitados: %04d(T) - %04d(M) - %04d(F)\nServidos: %04d(T) - %04d(M) - %04d(F)",stats[0]+stats[1],stats[0],stats[1],stats[2]+stats[3],stats[2],stats[3],stats[4]+stats[5],stats[4],stats[5]);
 	fclose(f);
 
+	printf("Sauna:\nRecebidos: %04d(T) - %04d(M) - %04d(F)\nRejeitados: %04d(T) - %04d(M) - %04d(F)\nServidos: %04d(T) - %04d(M) - %04d(F)\n\n",stats[0]+stats[1],stats[0],stats[1],stats[2]+stats[3],stats[2],stats[3],stats[4]+stats[5],stats[4],stats[5]);
+
 	return 0;
 }
 
@@ -277,6 +279,14 @@ int open_fifo_rejeitado(){
 	return fd2;
 }
 
+int read_real_time_fifo(int fd){
+	if(read(fd,&begin,sizeof(struct timespec)) == -1){
+		printf("Sauna: Coulnt read begin time\n");
+		return -1;
+	}
+	else
+		return 0;
+}
 
 void* saunar(void * pedido){
 	struct Pedido p = *(struct Pedido *) pedido;
@@ -327,7 +337,8 @@ void printMessage(pid_t pid, pthread_t tid, struct Pedido p, unsigned int tip){
 }
 
 void rejectPedido(struct Pedido * p, int fd){
-	write(fd, p, sizeof(struct Pedido));
+	if(write(fd, p, sizeof(struct Pedido))==-1)
+		printf("Sauna: Couldnt reject pedido\n");
 	if(p->rNo == 2)
 		processados++;
 	printMessage(getpid(), pthread_self(),*p,REJEITADO);

@@ -34,6 +34,10 @@ int create_fifo_rejeitado();
 
 int open_fifo_rejeitado();
 
+int read_real_time();
+
+int write_time_to_fifo(int fd);
+
 void* open_file_gerador();
 
 void gerarPedido(struct Pedido pedidos[], int i);
@@ -48,10 +52,8 @@ int main(int argc, char*argv[]){
 	if(argc != 3)
 		return -1;
 
-	if(clock_gettime(CLOCK_REALTIME, &begin)){    //start counting time
-		printf("Couldnt read correct time\n");
+	if(read_real_time()==-1)
 		exit(1);
-	}
 
 	pedidosNo = atoi(argv[1]);
 	tempoMax = atoi(argv[2]);
@@ -69,8 +71,27 @@ int main(int argc, char*argv[]){
 	pthread_join(tid[0],NULL);
 	pthread_join(tid[1],NULL);
 	fprintf(f,"Gerados: %04d(T) - %04d(M) - %04d(F)\nRejeitados: %04d(T) - %04d(M) - %04d(F)\nDescartados: %04d(T) - %04d(M) - %04d(F)",stats[0]+stats[1],stats[0],stats[1],stats[2]+stats[3],stats[2],stats[3],stats[4]+stats[5],stats[4],stats[5]);
+	printf("Gerador:\nGerados: %04d(T) - %04d(M) - %04d(F)\nRejeitados: %04d(T) - %04d(M) - %04d(F)\nDescartados: %04d(T) - %04d(M) - %04d(F)\n\n",stats[0]+stats[1],stats[0],stats[1],stats[2]+stats[3],stats[2],stats[3],stats[4]+stats[5],stats[4],stats[5]);
 	fclose(f);
 	return 0;
+}
+
+int read_real_time(){
+	if(clock_gettime(CLOCK_REALTIME, &begin)){    //start counting time
+		printf("Couldnt read correct time\n");
+		return -1;
+	}
+	else
+		return 0;
+}
+
+int write_time_to_fifo(int fd){
+	if(write(fd,&begin, sizeof(struct timespec)) == -1){
+		printf("Gerador: Couldnt write time\n");
+		return -1;
+	}
+	else
+		return 0;
 }
 
 int open_fifo_entrada(){
@@ -171,10 +192,8 @@ void * gerar(void * arg){
 		exit(1);
 	}
 
-	if(write(fd,&begin, sizeof(struct timespec)) == -1){
-		printf("Gerador: Couldnt write time\n");
+	if(write_time_to_fifo(fd)==-1)
 		exit(1);
-	}
 
 	for(i = 0; i < pedidosNo; i++){
 
@@ -202,7 +221,8 @@ void *recolocar(void * arg){
 	if((fd2=open_fifo_entrada())==-1)
 		exit(1);
 
-	create_fifo_rejeitado();
+	if(create_fifo_rejeitado()==-1)
+		exit(1);
 
 	if((fd=open_fifo_rejeitado())==-1)
 		exit(1);
