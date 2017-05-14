@@ -26,7 +26,8 @@ unsigned int stats[6];
 FILE * f;
 FILE * ex;
 
-clock_t begin;
+//clock_t begin;
+struct timespec begin;
 
 pthread_mutex_t file_lock = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t pedidos_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -51,7 +52,10 @@ int main(int argc, char*argv[]){
 	if(argc != 2)
 		return 1;
 
-	begin = clock();     //start counting time
+	if(clock_gettime(CLOCK_REALTIME, &begin)){    //start counting time
+		printf("Couldnt read correct time\n");
+		exit(1);
+	}
 
 	int fd, fd2, pedidosNo;
 
@@ -284,10 +288,15 @@ void* saunar(void * pedido){
 }
 
 void printMessage(pid_t pid, pthread_t tid, struct Pedido p, unsigned int tip){
-	clock_t end;
+	struct timespec end;
 	double t_dif;
-	end = clock();
-	t_dif = ((double) (end-begin) / CLOCKS_PER_SEC) * 1000;
+
+	if(clock_gettime(CLOCK_REALTIME, &end))
+		t_dif = -1;
+	else {
+		t_dif = (end.tv_sec-begin.tv_sec)*1e3 + (end.tv_nsec - begin.tv_nsec)/1e6;
+	}
+
 	fprintf(f,"%.2f - %u - %u - %04i: %c - %05d - %s\n", t_dif, (unsigned int) pid, (unsigned int) tid, p.id, p.g, p.time, messageTip[tip]);
 
 	if (tip == 0) {

@@ -23,7 +23,7 @@ int pedidosNo;
 int tempoMax;
 int stats[6];   //Statistics counters
 
-clock_t begin;
+struct timespec begin;
 //pthread_mutex_t file_lock = PTHREAD_MUTEX_INITIALIZER;
 
 FILE * f;
@@ -48,7 +48,11 @@ int main(int argc, char*argv[]){
 	if(argc != 3)
 		return -1;
 
-	begin = clock();                //Start counting time
+	if(clock_gettime(CLOCK_REALTIME, &begin)){    //start counting time
+		printf("Couldnt read correct time\n");
+		exit(1);
+	}
+
 	pedidosNo = atoi(argv[1]);
 	tempoMax = atoi(argv[2]);
 
@@ -139,10 +143,14 @@ void gerarPedido(struct Pedido pedidos[], int i){
 }
 
 void printMessage(pid_t pid, struct Pedido p, unsigned int tip){
-	clock_t end;
+	struct timespec end;
 	double t_dif;
-	end = clock();
-	t_dif = ((double) (end-begin) / CLOCKS_PER_SEC) * 1000;
+
+	if(clock_gettime(CLOCK_REALTIME, &end))
+		t_dif = -1;
+	else
+		t_dif = (end.tv_sec-begin.tv_sec)*1e3 + (end.tv_nsec - begin.tv_nsec)/1e6;
+
 	fprintf(f,"%.2f - %u - %04i: %c - %05d - %s\n", t_dif, (unsigned int) pid, p.id, p.g, p.time, messageTip[tip]);
 }
 
