@@ -297,14 +297,14 @@ void* saunar(void * pedido){
 	pedidosAtuais--;
 	pthread_mutex_unlock(&pedidos_lock);
 
-	pthread_mutex_lock(&file_lock);
 	printMessage(getpid(), pthread_self(),p,SERVIDO);
-	pthread_mutex_unlock(&file_lock);
 
 	return NULL;
 }
 
 void printMessage(pid_t pid, pthread_t tid, struct Pedido p, unsigned int tip){
+	pthread_mutex_lock(&file_lock);
+
 	struct timespec end;
 	double t_dif;
 
@@ -334,6 +334,8 @@ void printMessage(pid_t pid, pthread_t tid, struct Pedido p, unsigned int tip){
 		else if (p.g == 'F')
 			stats[5]++;
 	}
+
+	pthread_mutex_unlock(&file_lock);
 }
 
 void rejectPedido(struct Pedido * p, int fd){
